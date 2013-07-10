@@ -1,0 +1,31 @@
+<head>
+  <title>homer_app</title>
+</head>
+
+<body>
+  {{> list}}
+</body>
+
+<template name="list">
+  <h1>Question list</h1>
+  {{greeting}}
+  <input type="button" value="Click" />
+  <div class="cards">
+    {{#each cards}}
+      {{> card}}
+    {{/each}}
+    {{#if selected_card}}
+    <div class="answer">
+      {{selected_card.answer}}
+    </div>
+    {{/if}}
+  </div>
+</template>
+
+<template name="card">
+  <div class="card">
+    <div class="question">{{question}}</div>
+    
+    <!--div class="answer">{{answer}}</div-->
+  </div>
+</template>

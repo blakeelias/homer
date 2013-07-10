@@ -1,0 +1,14 @@
+/* CSS declarations go here */
+
+.card {
+    display: inline-block;
+    width: 300px;
+}
+
+.card.question {
+    
+}
+
+.card.answer {
+
+}
