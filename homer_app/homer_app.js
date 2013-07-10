@@ -15,8 +15,14 @@ if (Meteor.isClient) {
     'click input' : function () {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
-        console.log("You pressed the button");
+        console.log("You pressed the button");        
+    },
+    'click input.right': function() {
+        Cards.update(Session.get('selected_card'), {$set: {'last_seen' : new Date()}});
+        var card = Cards.findOne(Session.get("selected_card"));
+        console.log(card.last_seen);
     }
+
   });
   
   Template.list.cards = function() {
@@ -29,14 +35,24 @@ if (Meteor.isClient) {
           Session.set("selected_card", this._id);
        }
   });
+  
 }
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
       if (Cards.find().count() === 0) {
-        Cards.insert({"question": "What is 2 + 2", "answer": "4"});
-        Cards.insert({"question": "Who was the first US president?", "answer": "George Washington"});
-        Cards.insert({"question": "What is the third closest planet to the sun?", "answer": "Earth"});
+        Cards.insert({"question": "What is 2 + 2",
+                      "answer": "4",
+                      "last_seen": -1,
+                      "difficulty": 2.5,
+                      "next_scheduled": (new Date()).UTC()
+        });
+        Cards.insert({"question": "Who was the first US president?",
+                      "answer": "George Washington",
+                      "last_seen": -1,
+                      "difficulty": 2.5,
+                      "next_scheduled": (new Date()).UTC()
+        });
       }
   });
 }
