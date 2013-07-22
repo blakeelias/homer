@@ -27,8 +27,13 @@ if (Meteor.isClient) {
         var card = Cards.findOne(Session.get("selected_card"));
         console.log(card.last_seen_millis);
         console.log(card.easiness);
+        CardViews.insert({
+            "date_millis": (new Date()).getTime(),
+            "card_status": card
+        });
+        var cardStatus = CardViews.findOne({"card_status": card});
+        console.log(cardStatus);
     }
-
   });
   
   Template.list.cards = function() {
