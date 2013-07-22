@@ -24,15 +24,9 @@ if (Meteor.isClient) {
             {'last_seen_millis' : (new Date()).getTime(),
              'easiness': newEasinessFactor(currentEasiness, 3)}}
         );
+        
         var card = Cards.findOne(Session.get("selected_card"));
-        console.log(card.last_seen_millis);
-        console.log(card.easiness);
-        CardViews.insert({
-            "date_millis": (new Date()).getTime(),
-            "card_status": card
-        });
-        var cardStatus = CardViews.findOne({"card_status": card});
-        console.log(cardStatus);
+        storeCardSnapshot(card);
     }
   });
   
@@ -47,6 +41,16 @@ if (Meteor.isClient) {
        }
   });
   
+}
+
+function storeCardSnapshot(card) {
+    CardViews.insert({
+        "card_id": card._id,
+        "date_millis": (new Date()).getTime(),
+        "card_status": card
+    });
+    cardStatus = CardViews.find({"card_id": card._id});
+    console.log(cardStatus);
 }
 
 function newEasinessFactor(easinessFactor, quality) {
