@@ -15,10 +15,10 @@ if (Meteor.isClient) {
     'click input' : function () {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
-        console.log("You pressed the button");        
+        console.log("You pressed the button");
     },
     'click input.right': function() {
-        Cards.update(Session.get('selected_card'), {$set: {'last_seen' : new Date()}});
+        Cards.update(Session.get('selected_card'), {$set: {'last_seen' : new Date().UTC()}});
         var card = Cards.findOne(Session.get("selected_card"));
         console.log(card.last_seen);
     }
