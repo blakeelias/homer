@@ -45,7 +45,7 @@ function updateCard(cardReference, response) {
     Cards.update(cardReference, {
         $set: {
             'last_seen_millis' : (new Date()).getTime(),
-            'easiness': newEasinessFactor(card.easiness, 3)
+            'easiness': newEasinessFactor(card.easiness, response)
         }
     });
     storeCardSnapshot(card);
@@ -62,23 +62,28 @@ function storeCardSnapshot(card) {
 }
 
 function newEasinessFactor(easinessFactor, quality) {
-    quality = quality * 5./3.;
-    return easinessFactor - 0.8 + 0.28*quality - 0.02*quality*quality;
+    var newQuality = quality * 5./3.; // convert our 0-3 scale (wrong, hard, medium, easy) to 0-5 scale used in SM algorithm
+    var easinessFactor = easinessFactor - 0.8 + 0.28*quality - 0.02*quality*quality;
+    if (easinessFactor < 1.3) {
+        return 1.3;
+    }
+    if (easinessFactor > 2.5) {
+        return 2.5;
+    }
+    return easinessFactor;
 }
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
       if (Cards.find().count() === 0) {
-        Cards.insert({"_id": 1,
-                      "question": "What is 2 + 2",
+        Cards.insert({"question": "What is 2 + 2",
                       "answer": "4",
                       "last_seen_millis": -1,
                       "easiness": 2.5,
                       "next_scheduled_millis": (new Date()).getTime(),
                       "history": []
         });
-        Cards.insert({"_id": 2,
-                      "question": "Who was the first US president?",
+        Cards.insert({"question": "Who was the first US president?",
                       "answer": "George Washington",
                       "last_seen_millis": -1,
                       "easiness": 2.5,
