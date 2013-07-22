@@ -38,6 +38,11 @@ if (Meteor.isClient) {
   
 }
 
+function newEasinessFactor(easinessFactor, quality) {
+    quality = quality * 5./3.;
+    return easinessFactor - 0.8 + 0.28*quality - 0.02*quality*quality;
+}
+
 if (Meteor.isServer) {
   Meteor.startup(function () {
       if (Cards.find().count() === 0) {
