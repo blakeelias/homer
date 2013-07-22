@@ -17,17 +17,10 @@ if (Meteor.isClient) {
       if (typeof console !== 'undefined')
         console.log("You pressed the button");
     },
-    'click input.easy': function() {
-        var currentCard = Session.get('selected_card');
-        currentEasiness = Cards.findOne(currentCard).easiness;
-        Cards.update(currentCard, {$set:
-            {'last_seen_millis' : (new Date()).getTime(),
-             'easiness': newEasinessFactor(currentEasiness, 3)}}
-        );
-        
-        var card = Cards.findOne(Session.get("selected_card"));
-        storeCardSnapshot(card);
-    }
+    'click input.easy':   function() { updateCurrentCard(3); },
+    'click input.medium': function() { updateCurrentCard(2); },
+    'click input.hard':   function() { updateCurrentCard(1); },
+    'click input.wrong':  function() { updateCurrentCard(0); }
   });
   
   Template.list.cards = function() {
@@ -40,7 +33,22 @@ if (Meteor.isClient) {
           Session.set("selected_card", this._id);
        }
   });
-  
+}
+
+function updateCurrentCard(response) {
+    var selectedCardReference = Session.get('selected_card');
+    updateCard(selectedCardReference, response);
+}
+
+function updateCard(cardReference, response) {
+    var card = Cards.findOne(cardReference);
+    Cards.update(cardReference, {
+        $set: {
+            'last_seen_millis' : (new Date()).getTime(),
+            'easiness': newEasinessFactor(card.easiness, 3)
+        }
+    });
+    storeCardSnapshot(card);
 }
 
 function storeCardSnapshot(card) {
