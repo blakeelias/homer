@@ -1,5 +1,4 @@
 Cards = new Meteor.Collection("cards");
-CardViews = new Meteor.Collection("card_views");
 
 if (Meteor.isClient) {
   Template.list.greeting = function () {
@@ -44,21 +43,20 @@ function updateCard(cardReference, response) {
     var card = Cards.findOne(cardReference);
     Cards.update(cardReference, {
         $set: {
-            'last_seen_millis' : (new Date()).getTime(),
+            'last_seen' : (new Date()).getTime() / 1000,
             'easiness': newEasinessFactor(card.easiness, response)
         }
     });
-    storeCardSnapshot(card);
+    storeCardSnapshot(cardReference);
 }
 
-function storeCardSnapshot(card) {
-    CardViews.insert({
-        "card_id": card._id,
-        "date_millis": (new Date()).getTime(),
-        "card_status": card
-    });
-    cardStatus = CardViews.find({"card_id": card._id});
-    console.log(cardStatus);
+function storeCardSnapshot(cardReference) {
+    var cardInfo = Cards.findOne(cardReference, {"history": 0});
+    Cards.update(cardReference, {
+        $push: {
+            'history': cardInfo
+        }
+    })
 }
 
 function newEasinessFactor(easinessFactor, quality) {
@@ -78,16 +76,16 @@ if (Meteor.isServer) {
       if (Cards.find().count() === 0) {
         Cards.insert({"question": "What is 2 + 2",
                       "answer": "4",
-                      "last_seen_millis": -1,
+                      "last_seen": -1,
                       "easiness": 2.5,
-                      "next_scheduled_millis": (new Date()).getTime(),
+                      "next_scheduled": (new Date()).getTime(),
                       "history": []
         });
         Cards.insert({"question": "Who was the first US president?",
                       "answer": "George Washington",
-                      "last_seen_millis": -1,
+                      "last_seen": -1,
                       "easiness": 2.5,
-                      "next_scheduled_millis": (new Date()).getTime(),
+                      "next_scheduled": (new Date()).getTime(),
                       "history": []
         });
       }
