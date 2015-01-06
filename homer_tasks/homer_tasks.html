@@ -1,0 +1,36 @@
+<head>
+  <title>Todo List</title>
+</head>
+
+<body>
+  {{> loginButtons}}
+  {{> list}}
+</body>
+
+<template name="list">
+  <h1>Question list</h1>
+  {{greeting}}
+  <input type="button" value="Click" />
+  <div class="cards">
+    {{#each cards}}
+      {{> card}}
+    {{/each}}
+    {{#if selected_card}}
+    <div class="answer">
+      {{selected_card.answer}}
+      <input type="button" class="easy" value="Easy" />
+      <input type="button" class="medium" value="Medium" />
+      <input type="button" class="hard" value="Hard" />
+      <input type="button" class="wrong" value="Wrong" />
+    </div>
+    {{/if}}
+  </div>
+</template>
+
+<template name="card">
+  <div class="card">
+    <div class="question">{{question}}</div>
+    
+    <!--div class="answer">{{answer}}</div-->
+  </div>
+</template>
