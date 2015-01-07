@@ -1,17 +1,19 @@
-Cards = new Meteor.Collection("cards");
+Cards = new Mongo.Collection("cards");
 
 if (Meteor.isClient) {
 
-Template.list.greeting = function () {
+  //Meteor.subscribe("cards");
+
+  /*Template.body.greeting = function () {
     return "Click a question below to view its answer.";
   };
   
-  Template.list.selected_card = function () {
+  Template.body.selected_card = function () {
     var card = Cards.findOne(Session.get("selected_card"));
     return card;
-  };
+  };*/
 
-  Template.list.events({
+  Template.body.events({
     'click input' : function () {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
@@ -23,9 +25,12 @@ Template.list.greeting = function () {
     'click input.wrong':  function() { updateCurrentCard(0); }
   });
   
-  Template.list.cards = function() {
-      return Cards.find({});
-  };
+  Template.body.helpers({
+    cards: function() {
+	//return [{'question': 'a', 'answer': 'b'}, {'question': 'c', 'answer': 'd'}]
+	return Cards.find({});
+    }
+  });
   
   Template.card.events({
       'click': function () {
@@ -38,9 +43,6 @@ Template.list.greeting = function () {
     passwordSignupFields: "USERNAME_ONLY"
   });
 }
-
-Meteor.methods({
-});
 
 function updateCurrentCard(response) {
     var selectedCardReference = Session.get('selected_card');
@@ -79,6 +81,7 @@ function newEasinessFactor(easinessFactor, quality) {
     return easinessFactor;
 }
 
+
 if (Meteor.isServer) {
   Meteor.startup(function () {
       if (Cards.find().count() === 0) {
@@ -97,5 +100,11 @@ if (Meteor.isServer) {
                       "history": []
         });
       }
+      
+      console.log(Cards.find().fetch());
+  });
+
+  Meteor.publish("cards", function () {
+    return Cards.find();
   });
 }
