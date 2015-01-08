@@ -51,7 +51,7 @@ function updateCard(cardReference, response) {
     var card = Cards.findOne(cardReference);
     Meteor.call("updateCard", cardReference, {
         $set: {
-            'last_seen' : (new Date()).getTime() / 1000,
+            'last_seen' : new Date(),
             'easiness': newEasinessFactor(card.easiness, response)
         }
     });
@@ -82,14 +82,14 @@ if (Meteor.isServer) {
                       "answer": "4",
                       "last_seen": -1,
                       "easiness": 2.5,
-                      "next_scheduled": (new Date()).getTime(),
+                      "next_scheduled": new Date(),
                       "history": []
         });
         Cards.insert({"question": "Who was the first US president?",
                       "answer": "George Washington",
                       "last_seen": -1,
                       "easiness": 2.5,
-                      "next_scheduled": (new Date()).getTime(),
+                      "next_scheduled": new Date(),
                       "history": []
         });
       }
