@@ -53,6 +53,7 @@ function updateCard(cardReference, response) {
     Meteor.call("updateCard", cardReference, {
         $set: {
             'last_seen' : new Date(),
+            'last_response': response,
             'easiness': newEasinessFactor(card.easiness, response)
         }
     });
