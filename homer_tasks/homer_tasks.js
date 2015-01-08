@@ -2,16 +2,15 @@ Cards = new Mongo.Collection("cards");
 
 if (Meteor.isClient) {
 
-  //Meteor.subscribe("cards");
+  Meteor.subscribe("cards");
 
-  /*Template.body.greeting = function () {
+  Template.body.greeting = function () {
     return "Click a question below to view its answer.";
   };
   
   Template.body.selected_card = function () {
-    var card = Cards.findOne(Session.get("selected_card"));
-    return card;
-  };*/
+    return Cards.findOne(Session.get("selectedCard"));
+  };
 
   Template.body.events({
     'click input' : function () {
@@ -27,15 +26,14 @@ if (Meteor.isClient) {
   
   Template.body.helpers({
     cards: function() {
-	//return [{'question': 'a', 'answer': 'b'}, {'question': 'c', 'answer': 'd'}]
-	return Cards.find({});
+      return Cards.find(); //return Meteor.call("getCards");
     }
   });
   
   Template.card.events({
       'click': function () {
           console.log("You clicked a card");
-          Session.set("selected_card", this._id);
+          Session.set("selectedCard", this._id);
        }
   });
 
@@ -45,13 +43,13 @@ if (Meteor.isClient) {
 }
 
 function updateCurrentCard(response) {
-    var selectedCardReference = Session.get('selected_card');
+    var selectedCardReference = Session.get('selectedCard');
     updateCard(selectedCardReference, response);
 }
 
 function updateCard(cardReference, response) {
     var card = Cards.findOne(cardReference);
-    Cards.update(cardReference, {
+    Meteor.call("updateCard", cardReference, {
         $set: {
             'last_seen' : (new Date()).getTime() / 1000,
             'easiness': newEasinessFactor(card.easiness, response)
@@ -61,12 +59,7 @@ function updateCard(cardReference, response) {
 }
 
 function storeCardSnapshot(cardReference) {
-    var cardInfo = Cards.findOne(cardReference, {"history": 0});
-    Cards.update(cardReference, {
-        $push: {
-            'history': cardInfo
-        }
-    })
+  Meteor.call("storeCardSnapshot", cardReference);
 }
 
 function newEasinessFactor(easinessFactor, quality) {
@@ -108,3 +101,17 @@ if (Meteor.isServer) {
     return Cards.find();
   });
 }
+
+Meteor.methods({
+  storeCardSnapshot: function (cardReference) {
+    var cardInfo = Cards.findOne(cardReference, {"history": 0});
+    Cards.update(cardReference, {
+        $push: {
+            'history': cardInfo
+        }
+    })
+  },
+  updateCard: function (cardReference, updateObject) {
+    Cards.update(cardReference, updateObject);
+  }
+});
