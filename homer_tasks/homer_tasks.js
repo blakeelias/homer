@@ -49,13 +49,13 @@ function updateCurrentCard(response) {
 
 function updateCard(cardReference, response) {
     var card = Cards.findOne(cardReference);
+    storeCardSnapshot(cardReference);
     Meteor.call("updateCard", cardReference, {
         $set: {
             'last_seen' : new Date(),
             'easiness': newEasinessFactor(card.easiness, response)
         }
     });
-    storeCardSnapshot(cardReference);
 }
 
 function storeCardSnapshot(cardReference) {
