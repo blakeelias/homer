@@ -80,14 +80,12 @@ if (Meteor.isServer) {
       if (Cards.find().count() === 0) {
         Cards.insert({"question": "What is 2 + 2",
                       "answer": "4",
-                      "last_seen": -1,
                       "easiness": 2.5,
                       "next_scheduled": new Date(),
                       "history": []
         });
         Cards.insert({"question": "Who was the first US president?",
                       "answer": "George Washington",
-                      "last_seen": -1,
                       "easiness": 2.5,
                       "next_scheduled": new Date(),
                       "history": []
