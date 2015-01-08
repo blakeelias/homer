@@ -102,7 +102,8 @@ if (Meteor.isServer) {
 
 Meteor.methods({
   storeCardSnapshot: function (cardReference) {
-    var cardInfo = Cards.findOne(cardReference, {"history": 0});
+    var cardInfo = Cards.findOne(cardReference);
+    delete cardInfo["history"]
     Cards.update(cardReference, {
         $push: {
             'history': cardInfo
