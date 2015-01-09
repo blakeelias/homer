@@ -75,11 +75,11 @@
  
     dialog = $( "#dialog-form" ).dialog({
       autoOpen: false,
-      height: 300,
-      width: 350,
+      height: 600,
+      width: 700,
       modal: true,
       buttons: {
-        "Create an account": addUser,
+        "Import": addUser,
         Cancel: function() {
           dialog.dialog( "close" );
         }
@@ -142,13 +142,8 @@
  
   <form>
     <fieldset>
-      <label for="name">Name</label>
-      <input type="text" name="name" id="name" value="Jane Smith" class="text ui-widget-content ui-corner-all">
-      <label for="email">Email</label>
-      <input type="text" name="email" id="email" value="jane@smith.com" class="text ui-widget-content ui-corner-all">
-      <label for="password">Password</label>
-      <input type="password" name="password" id="password" value="xxxxxxx" class="text ui-widget-content ui-corner-all">
- 
+      <textarea name="name" id="name" value="Jane Smith" class="text ui-widget-content ui-corner-all"></textarea>
+
       <!-- Allow form submission with keyboard without duplicating the dialog button -->
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
     </fieldset>
