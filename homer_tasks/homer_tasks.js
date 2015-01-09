@@ -13,10 +13,11 @@ if (Meteor.isClient) {
   };
 
   Template.body.events({
-    'click input' : function () {
+    'click input.import' : function () {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
         console.log("You pressed the button");
+      
     },
     'click input.easy':   function() { updateCurrentCard(3); },
     'click input.medium': function() { updateCurrentCard(2); },
