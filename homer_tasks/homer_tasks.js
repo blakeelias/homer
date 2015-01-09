@@ -29,7 +29,7 @@ if (Meteor.isClient) {
       return Cards.find(); //return Meteor.call("getCards");
     }
   });
-  
+
   Template.card.events({
       'click': function () {
           console.log("You clicked a card");
@@ -75,27 +75,45 @@ function newEasinessFactor(easinessFactor, quality) {
     return easinessFactor;
 }
 
+function cardsInCategory(category) {
+    return Cards.find(category).fetch();
+}
+
+function cardCategories(query) {
+    var card = Cards.findOne(query);
+    console.log(card);
+    return card.categories;
+}
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
+      console.log("server starting up");
       if (Cards.find().count() === 0) {
-        Cards.insert({"question": "What is 2 + 2",
+        Cards.insert({"question": "What is 2 + 2?",
                       "answer": "4",
                       "easiness": 2.5,
                       "next_scheduled": new Date(),
-                      "history": []
+                      "history": [],
+                      "categories": ["math", "lecture1"]
         });
         Cards.insert({"question": "Who was the first US president?",
                       "answer": "George Washington",
                       "easiness": 2.5,
                       "next_scheduled": new Date(),
-                      "history": []
+                      "history": [],
+                      "categories": ["history", "lecture1"]
+        });
+        Cards.insert({"question": "In what year was the Declaration of Independence signed?",
+                      "answer": "1776",
+                      "easiness": 2.5,
+                      "next_scheduled": new Date(),
+                      "history": [],
+                      "categories": ["history", "lecture2"]
         });
       }
-      
-      console.log(Cards.find().fetch());
+      console.log(cardsInCategory({categories: "history"}));
+      console.log(cardCategories({"question": "What is 2 + 2?"}));
   });
-
   Meteor.publish("cards", function () {
     return Cards.find();
   });
