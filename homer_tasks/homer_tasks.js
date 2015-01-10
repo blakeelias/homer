@@ -1,10 +1,12 @@
 Cards = new Mongo.Collection("cards");
 Categories = new Mongo.Collection("categories");
+Tags.TagsMixin(Cards);
 
 if (Meteor.isClient) {
 
   Meteor.subscribe("cards");
   Meteor.subscribe("categories");
+  Meteor.subscribe("tags");
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -116,11 +118,21 @@ if (Meteor.isServer) {
       console.log(cardsInCategory({categories: "history"}));
       console.log(cardCategories({"question": "What is 2 + 2?"}));
   });
+
+  Cards.allowTags(function (userId) {
+    // only allow if user is logged in
+    //return !!userId;
+    return true;
+  });
+
   Meteor.publish("cards", function () {
     return Cards.find();
   });
   Meteor.publish("categories", function () {
     return Categories.find();
+  });
+  Meteor.publish("tags", function () {
+    return Meteor.tags.find();
   });
 }
 
