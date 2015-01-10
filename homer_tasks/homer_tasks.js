@@ -1,8 +1,10 @@
 Cards = new Mongo.Collection("cards");
+Categories = new Mongo.Collection("categories");
 
 if (Meteor.isClient) {
 
   Meteor.subscribe("cards");
+  Meteor.subscribe("categories");
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -122,6 +124,9 @@ if (Meteor.isServer) {
   });
   Meteor.publish("cards", function () {
     return Cards.find();
+  });
+  Meteor.publish("categories", function () {
+    return Categories.find();
   });
 }
 
