@@ -11,7 +11,11 @@ showInputForm = function() {
 				importDataField = $( "#importData" );
  
 			function addUser() {
-			  Meteor.call('insertCard', {'question': 'import test'});
+			  var data = importDataField.val();
+			  data.split('\n').map(function (line) {
+			    var pair = line.split('\t');
+			    Meteor.call('insertCard', {'question': pair[0], 'answer': pair[1]});
+			  });
 			}
  
 			dialog = $( "#dialog-form" ).dialog({
