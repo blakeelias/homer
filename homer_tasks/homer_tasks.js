@@ -333,5 +333,14 @@ Meteor.methods({
   },
   updateCard: function (cardReference, updateObject) {
     Cards.update(cardReference, updateObject);
+  },
+  createUserCard: function (cardReference) {
+    Cards.insert({
+      user: Meteor.user(),
+      parentCard: cardReference,
+      easiness: 2.5,
+      next_scheduled: new Date(),
+      history: []
+    });
   }
 });
