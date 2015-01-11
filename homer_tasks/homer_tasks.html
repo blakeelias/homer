@@ -47,9 +47,12 @@
  
   <form>
     <fieldset>
-      <textarea name="name" id="importData" value="Jane Smith" class="text ui-widget-content ui-corner-all"></textarea>
+      <textarea name="Flashcards" id="importData" value="Type flashcards here" class="text ui-widget-content ui-corner-all"></textarea>
 
       <!-- Allow form submission with keyboard without duplicating the dialog button -->
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+
+      <textarea name="categories" id="importCategory" value="Type categories here" class="text ui-widget-content ui-corner-all"></textarea>
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
     </fieldset>
   </form>

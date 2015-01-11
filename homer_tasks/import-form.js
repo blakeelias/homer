@@ -8,13 +8,15 @@ showInputForm = function() {
 		$(function() {
 			var dialog, form,
  
-				importDataField = $( "#importData" );
+				importDataField = $( "#importData" ),
+				importCategory = $( "#importCategory" );
  
 			function addUser() {
 			  var data = importDataField.val();
 			  data.split('\n').map(function (line) {
 			    var pair = line.split('\t');
 			    Meteor.call('insertCard', {'question': pair[0], 'answer': pair[1]});
+			    Cards.addTag(importCategory.val(), Cards.findOne({'question': pair[0]}));
 			  });
 			}
  
