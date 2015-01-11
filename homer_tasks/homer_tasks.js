@@ -11,7 +11,7 @@ if (Meteor.isClient) {
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
   };
-  
+
   Template.body.selected_card = function () {
     return Cards.findOne(Session.get("selectedCard"));
   };
@@ -21,14 +21,14 @@ if (Meteor.isClient) {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
         console.log("You pressed the button");
-      
+
     },
     'click input.easy':   function() { updateCurrentCard(3); },
     'click input.medium': function() { updateCurrentCard(2); },
     'click input.hard':   function() { updateCurrentCard(1); },
     'click input.wrong':  function() { updateCurrentCard(0); }
   });
-  
+
   Template.body.helpers({
     cards: function() {
       return Cards.find(); //return Meteor.call("getCards");
@@ -36,16 +36,34 @@ if (Meteor.isClient) {
   });
 
   Template.card.events({
-      'click': function () {
-          console.log("You clicked a card");
-          Session.set("selectedCard", this._id);
+       'click .card':   function(event, template) {
+           var temp = this;
+           $(event.target).parent().flip({
+               direction: "rl",
+               speed: 400,
+               color: "#00372B",
+               onEnd: function() {
+                   var answer = temp.answer;
+                   temp.question = answer;
+                   $(event.target).switchClass("front", "back");
+                   $(event.target).find(".card-footer").show();
+
+                   // Initialize card events
+                   $(".card-footer span").tooltip({
+                        animation: false,
+                        placement: "bottom"
+                    });
+
+                   // TODO(blake): actually show the answer
+               }
+           });
        }
   });
 
   Accounts.ui.config({
     passwordSignupFields: "USERNAME_ONLY"
   });
-  
+
 	Meteor.startup(function () {
 		console.log("in Meteor.startup");
 		showInputForm();

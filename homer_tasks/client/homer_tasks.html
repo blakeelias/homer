@@ -9,7 +9,7 @@
 
 <body>
   {{> loginButtons}}
-  
+
   <h1>Question list</h1>
   {{greeting}}
   <button id="create-user">Import</button>
@@ -41,10 +41,10 @@
     </div>
     {{/if}}
   </div>
-  
+
   <div id="dialog-form" title="Create new user">
   <p class="validateTips">All form fields are required.</p>
- 
+
   <form>
     <fieldset>
       <textarea name="name" id="importData" value="Jane Smith" class="text ui-widget-content ui-corner-all"></textarea>
@@ -54,13 +54,20 @@
     </fieldset>
   </form>
   </div>
-  
+
 </body>
 
 <template name="card">
   <div class="card">
-    <div class="question">{{question}}</div>
-    
-    <!--div class="answer">{{answer}}</div-->
+    <div class="front">
+        {{question}}
+        <div class="card-footer">
+            <span class="rank-number" data-original-title="I don't know">1</span>
+            <span class="rank-number" data-original-title="I know a little">2</span>
+            <span class="rank-number" data-original-title="I sort of know">3</span>
+            <span class="rank-number" data-original-title="I almost know">4</span>
+            <span class="rank-number" data-original-title="I know it">5</span>
+        </div>
+    </div>
   </div>
 </template>
