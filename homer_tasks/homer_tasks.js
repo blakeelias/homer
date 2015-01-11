@@ -35,20 +35,7 @@ if (Meteor.isClient) {
     },
     tags: function() {
       return Meteor.tags.find().fetch();
-    }/*,
-    cardsInCategory: function(tag) {
-      return Cards.find({tags:tag});
     }
-      categories: function() {
-      var categoryTags = Meteor.tags.find().fetch();
-      var cardsByCategory = []; //double array containing arrays of cards for each category
-      for (tag in categoryTags) {
-        cardsByCategory.push(Cards.find({tags:tag}));
-      }
-
-      return cardsByCategory;
-    }
-*/
   });
 
   Template.tag.helpers({
@@ -63,6 +50,12 @@ if (Meteor.isClient) {
           Session.set("selectedCard", this._id);
        }
   });
+
+  Template.cardInAccordion.rendered = function() {
+    $( "#accordion" ).accordion({
+      collapsible: true
+    });
+  }
 
   Accounts.ui.config({
     passwordSignupFields: "USERNAME_ONLY"
