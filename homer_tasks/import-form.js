@@ -1,10 +1,10 @@
 showInputForm = function() {
   console.log("in showInputForm");
-		
+
 		$( "#import" ).button().on( "click", function() {
 				dialog.dialog( "open" );
 		});
-	
+
 		$(function() {
 			var dialog, form,
  
@@ -19,7 +19,7 @@ showInputForm = function() {
 			    Cards.addTag(importCategory.val(), Cards.findOne({'question': pair[0]}));
 			  });
 			}
- 
+
 			dialog = $( "#dialog-form" ).dialog({
 				autoOpen: false,
 				height: 600,
@@ -36,12 +36,12 @@ showInputForm = function() {
 					allFields.removeClass( "ui-state-error" );
 				}
 			});
- 
+
 			form = dialog.find( "form" ).on( "submit", function( event ) {
 				event.preventDefault();
 				addUser();
 			});
- 
+
 			$( "#create-user" ).button().on( "click", function() {
 				dialog.dialog( "open" );
 			});

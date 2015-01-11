@@ -123,3 +123,78 @@ header .hide-completed {
     padding-bottom: 5px;
   }
 }
+
+/* CARD */
+.card {
+    width: 600px;
+    height: 250px;
+    color: #6EA498;
+    background-color: #00372B;
+    padding: 10px;
+    margin: 20px auto;
+    text-align: center;
+    cursor: pointer;
+
+    /* vertically aligned content */
+    overflow: hidden;
+    display: table;
+    position: static;
+}
+
+    .card .front, .card .back {
+        /* vertically aligned content */
+        /* http://www.jakpsatweb.cz/css/css-vertical-center-solution.html */
+        display: table-cell;
+        vertical-align: middle;
+        width: 100%;
+        position: static;
+    }
+
+    .card .front {
+        font-size: 32px;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    .card .back {
+        font-size: 22px;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    .card .card-footer {
+        margin-top: 50px;
+        margin-bottom: 5px;
+        display: none;
+    }
+
+    .card .card-footer  span {
+        color: #000;
+        padding: 8px 40px;
+        margin: -4px; /* TODO(drew): get rid of this hack */
+    }
+
+    .card .card-footer  span:hover {
+        color: #fff;
+        background-color: #000 !important;
+    }
+
+    .card .card-footer  span.rank-number:nth-of-type(1) {
+        background-color: #F8F8F8;
+    }
+
+    .card .card-footer  span.rank-number:nth-of-type(2) {
+        background-color: #E8E8E8;
+    }
+
+    .card .card-footer  span.rank-number:nth-of-type(3) {
+        background-color: #D8D8D8;
+    }
+
+    .card .card-footer  span.rank-number:nth-of-type(4) {
+        background-color: #C8C8C8;
+    }
+
+    .card .card-footer  span.rank-number:nth-of-type(5) {
+        background-color: #B8B8B8;
+    }
