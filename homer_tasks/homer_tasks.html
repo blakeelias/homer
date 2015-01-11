@@ -14,6 +14,11 @@
   {{greeting}}
   <button id="create-user">Import</button>
   <div id="accordion">
+    {{#each tags}}
+      <div>
+      {{> tag}}
+      </div>
+    {{/each}}
     <h3>Math</h3>
     <div>
       <p>
@@ -65,5 +70,14 @@
     <div class="question">{{question}}</div>
     
     <!--div class="answer">{{answer}}</div-->
+  </div>
+</template>
+
+<template name="tag">
+  <div class="tag">
+  <h3>{{name}}</h3>
+  {{#each cardsInCategory name}}
+    {{> card}}
+  {{/each}}
   </div>
 </template>

@@ -32,6 +32,28 @@ if (Meteor.isClient) {
   Template.body.helpers({
     cards: function() {
       return Cards.find(); //return Meteor.call("getCards");
+    },
+    tags: function() {
+      return Meteor.tags.find().fetch();
+    }/*,
+    cardsInCategory: function(tag) {
+      return Cards.find({tags:tag});
+    }
+      categories: function() {
+      var categoryTags = Meteor.tags.find().fetch();
+      var cardsByCategory = []; //double array containing arrays of cards for each category
+      for (tag in categoryTags) {
+        cardsByCategory.push(Cards.find({tags:tag}));
+      }
+
+      return cardsByCategory;
+    }
+*/
+  });
+
+  Template.tag.helpers({
+    cardsInCategory: function(tag) {
+      return Cards.find({tags:tag});
     }
   });
 
