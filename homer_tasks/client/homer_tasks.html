@@ -24,6 +24,14 @@
       History cards
       </p>
     </div>
+    <h3>Cards Due Today</h3>
+    <div>
+      {{#each dueCards}}
+        <div>
+        {{> cardInAccordion}}
+        </div>
+      {{/each}}
+    </div>
   </div>
   <div class="cards">
 

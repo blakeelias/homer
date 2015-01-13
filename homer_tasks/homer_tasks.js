@@ -35,6 +35,9 @@ if (Meteor.isClient) {
     },
     tags: function() {
       return Meteor.tags.find().fetch();
+    },
+    dueCards: function() {
+    	return cardsDueToday();
     }
   });
 
@@ -126,6 +129,17 @@ function cardCategories(query) {
     var card = Cards.findOne(query);
     console.log(card);
     return card.categories;
+}
+
+function cardsDueToday() {
+	cards = Cards.find().fetch();
+	dueCards = [];
+	for (card in cards) {
+		if (cards[card]["next_scheduled"] < new Date()) {
+			dueCards.push(cards[card]);
+		}
+	}
+	return dueCards;
 }
 
 if (Meteor.isServer) {
