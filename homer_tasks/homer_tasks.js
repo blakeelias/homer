@@ -34,7 +34,8 @@ if (Meteor.isClient) {
       return Cards.find(); //return Meteor.call("getCards");
     },
     tags: function() {
-      return Meteor.tags.find().fetch();
+      tags = Meteor.tags.find().fetch();
+      return tags;
     },
     dueCards: function() {
     	return cardsDueToday();
@@ -50,14 +51,20 @@ if (Meteor.isClient) {
   Template.card.events({
        'click .card':   function(event, template) {
            var temp = this;
+           console.log('temp');
+           console.log(temp);
            $(event.target).parent().flip({
                direction: "rl",
                speed: 400,
                color: "#00372B",
                onEnd: function() {
                    var answer = temp.answer;
-                   temp.question = answer;
+                   temp.question = answer; // doesn't work
+                   // doesn't work either: $(".cardText").html(answer);
                    $(event.target).switchClass("front", "back");
+                   // $(event.target).find(".front").hide()
+                   // $(event.target).find(".back").show()
+                   $(event.target).find(".answer").show()
                    $(event.target).find(".card-footer").show();
 
                    // Initialize card events

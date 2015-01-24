@@ -69,8 +69,12 @@
 
 <template name="card">
   <div class="card">
+    <!--div class="front">
+      <div class="cardText">{{question}}</div>
+    </div-->
     <div class="front">
-        {{question}}
+        <div>{{question}}</div> <!--div class="cardText">{{question}}</div-->
+        <div class="answer">{{answer}}</div>
         <div class="card-footer">
             <span class="rank-number" data-original-title="I don't know">1</span>
             <span class="rank-number" data-original-title="I know a little">2</span>

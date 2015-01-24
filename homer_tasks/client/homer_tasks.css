@@ -160,6 +160,11 @@ header .hide-completed {
         font-size: 22px;
         font-weight: bold;
         line-height: 1;
+        /* display: none;*/
+    }
+    
+    .card .answer {
+    	display: none;
     }
 
     .card .card-footer {
