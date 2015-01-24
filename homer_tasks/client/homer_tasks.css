@@ -175,7 +175,7 @@ header .hide-completed {
 
     .card .card-footer  span {
         color: #000;
-        padding: 8px 40px;
+        padding: 8px 30px;
         margin: -4px; /* TODO(drew): get rid of this hack */
     }
 
@@ -185,21 +185,25 @@ header .hide-completed {
     }
 
     .card .card-footer  span.rank-number:nth-of-type(1) {
-        background-color: #F8F8F8;
+        background-color: red;
     }
 
     .card .card-footer  span.rank-number:nth-of-type(2) {
-        background-color: #E8E8E8;
+        background-color: #F8F8F8;
     }
 
     .card .card-footer  span.rank-number:nth-of-type(3) {
-        background-color: #D8D8D8;
+        background-color: #E8E8E8;
     }
 
     .card .card-footer  span.rank-number:nth-of-type(4) {
-        background-color: #C8C8C8;
+        background-color: #D8D8D8;
     }
 
     .card .card-footer  span.rank-number:nth-of-type(5) {
+        background-color: #C8C8C8;
+    }
+
+    .card .card-footer  span.rank-number:nth-of-type(6) {
         background-color: #B8B8B8;
     }
