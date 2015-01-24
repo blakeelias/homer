@@ -42,6 +42,8 @@ if (Meteor.isClient) {
       var masterCardsCursor = Cards.find({
         user: { $exists : false}
       });
+      /*console.log("masterCardsCursor.count()");
+      console.log(masterCardsCursor.count());*/
 
       if (Meteor.user()) {
         return masterCardsCursor.map(function(card) {
@@ -50,6 +52,7 @@ if (Meteor.isClient) {
            * content)
            *  
            */
+          debugger;
           var getThisUserCard = function() {
             return Cards.findOne({
               'parentCard': card._id,
@@ -57,8 +60,12 @@ if (Meteor.isClient) {
             });
           }
           var userCard = getThisUserCard();
+					console.log("card");
+          console.log(card);
+          console.log("userCard");
+          console.log(userCard);
           if (!userCard) {
-            var newCardId = Meteor.call('createUserCard', card._id);
+            Meteor.call('createUserCard', card._id);
             return getThisUserCard();
           }
           else {
