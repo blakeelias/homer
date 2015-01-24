@@ -39,6 +39,11 @@ if (Meteor.isClient) {
     },
     dueCards: function() {
     	return cardsDueToday();
+    },
+    nextCard: function() {
+      var cards = cardsDueToday();
+      var index = Math.floor(Math.random() * cards.length);
+      return [cards[index]];
     }
   });
 
@@ -144,12 +149,6 @@ function cardsDueToday() {
 		}
 	}
 	return dueCards;
-}
-
-nextCardDue = function() {
-  var cards = cardsDueToday();
-  var index = Math.floor(Math.random() * cards.length);
-  return cards[index];
 }
 
 if (Meteor.isServer) {
