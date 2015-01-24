@@ -55,11 +55,12 @@ if (Meteor.isClient) {
 
   Template.card.events({
        'click .card':   function(event, template) {
-          var temp = this;
-          console.log('temp');
-          console.log(temp);
+
           if ($(event.target).attr('class') == 'rank-number') {
             // TODO: store rating
+            var cardReference = {'_id': this._id};
+            var response = $(event.target).html();
+            updateCard(cardReference, response);
           } else {
             $('.card').flip({
               direction: "rl",
