@@ -146,6 +146,12 @@ function cardsDueToday() {
 	return dueCards;
 }
 
+nextCardDue = function() {
+  var cards = cardsDueToday();
+  var index = Math.floor(Math.random() * cards.length);
+  return cards[index];
+}
+
 if (Meteor.isServer) {
   Meteor.startup(function () {
       console.log("server starting up");
