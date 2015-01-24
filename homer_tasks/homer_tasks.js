@@ -53,7 +53,7 @@ if (Meteor.isClient) {
            var temp = this;
            console.log('temp');
            console.log(temp);
-           $(event.target).parent().flip({
+           $(event.target).flip({
                direction: "rl",
                speed: 400,
                color: "#00372B",
