@@ -50,32 +50,29 @@ if (Meteor.isClient) {
 
   Template.card.events({
        'click .card':   function(event, template) {
-           var temp = this;
-           console.log('temp');
-           console.log(temp);
-           $(event.target).flip({
-               direction: "rl",
-               speed: 400,
-               color: "#00372B",
-               onEnd: function() {
-                   var answer = temp.answer;
-                   temp.question = answer; // doesn't work
-                   // doesn't work either: $(".cardText").html(answer);
-                   $(event.target).switchClass("front", "back");
-                   // $(event.target).find(".front").hide()
-                   // $(event.target).find(".back").show()
-                   $(event.target).find(".answer").show()
-                   $(event.target).find(".card-footer").show();
+          var temp = this;
+          console.log('temp');
+          console.log(temp);
+          if ($(event.target).attr('class') == 'rank-number') {
+            // TODO: store rating
+          } else {
+            $('.card').flip({
+              direction: "rl",
+              speed: 400,
+              color: "#00372B",
+              onEnd: function() {
+                   $('.card div').find(".answer").show()
+                   $('.card div').find(".card-footer").show();
 
                    // Initialize card events
                    $(".card-footer span").tooltip({
                         animation: false,
                         placement: "bottom"
                     });
-
-                   // TODO(blake): actually show the answer
                }
-           });
+            });
+          }
+           
        }
   });
 
