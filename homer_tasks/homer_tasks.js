@@ -59,7 +59,8 @@ if (Meteor.isClient) {
           if ($(event.target).attr('class') == 'rank-number') {
             // TODO: store rating
             var cardReference = {'_id': this._id};
-            var response = $(event.target).html();
+            var response = $(event.target).attr('rating');
+            console.log(response)
             updateCard(cardReference, response);
           } else {
             $('.card').flip({
@@ -120,8 +121,7 @@ function storeCardSnapshot(cardReference) {
 }
 
 function newEasinessFactor(easinessFactor, quality) {
-    var newQuality = quality * 5./3.; // convert our 0-3 scale (wrong, hard, medium, easy) to 0-5 scale used in SM algorithm
-    var easinessFactor = easinessFactor - 0.8 + 0.28*newQuality - 0.02*newQuality*newQuality;
+    var easinessFactor = easinessFactor - 0.8 + 0.28*quality - 0.02*quality*quality;
     if (easinessFactor < 1.3) {
         return 1.3;
     }
