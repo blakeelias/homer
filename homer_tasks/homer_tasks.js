@@ -105,13 +105,34 @@ function updateCurrentCard(response) {
 }
 
 function updateCard(cardReference, response) {
+    var nowDate = new Date();
     var card = Cards.findOne(cardReference);
+    var reviewNumber = card.history.length;
     storeCardSnapshot(cardReference);
+    var easiness = newEasinessFactor(card.easiness, response);
+    if (response == 0) {
+      var interval = 0;
+    } else {
+      if (reviewNumber == 0) {
+        var interval = 1;
+      } else if (reviewNumber == 1) {
+        var interval = 6;
+      } else {
+        var daysSinceLastSeen = (nowDate - card.last_seen) / (1000 * 60 * 60 * 24);
+        console.log('days since last seen: ' + daysSinceLastSeen);
+        var interval = easiness * daysSinceLastSeen;
+      }
+    }
+    var nextReview = moment(nowDate);
+    console.log('interval days: ' + interval);
+    nextReview.add(interval, 'days');
+    console.log(nextReview);
     Meteor.call("updateCard", cardReference, {
         $set: {
-            'last_seen' : new Date(),
+            'last_seen' : nowDate,
             'last_response': response,
-            'easiness': newEasinessFactor(card.easiness, response)
+            'easiness': easiness,
+            'next_scheduled': nextReview._d
         }
     });
 }
