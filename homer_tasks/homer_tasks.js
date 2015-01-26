@@ -7,6 +7,8 @@ if (Meteor.isClient) {
   Meteor.subscribe("cards");
   Meteor.subscribe("categories");
   Meteor.subscribe("tags");
+  
+  var category = null;
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -16,7 +18,7 @@ if (Meteor.isClient) {
     return Cards.findOne(Session.get("selectedCard"));
   };
 
-  Template.body.events({
+    Template.body.events({
     'click input.import' : function () {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
@@ -37,11 +39,29 @@ if (Meteor.isClient) {
       tags = Meteor.tags.find().fetch();
       return tags;
     },
+    cardsInCategory: function() {
+    	if (category == null) {
+          return
+        }
+        return cards = Cards.find({tags: category}).fetch();
+    },
+    // ONLY USED FOR PART OF ACCORDION WE WANT TO GET RID OFF
     dueCards: function() {
     	return cardsDueToday();
     },
     nextCard: function() {
-      var cards = cardsDueToday();
+      var cards = [];
+      console.log(category);
+      if (category == null) {
+      	cards = cardsDueToday();
+      }
+      else {
+      	cards = cardsDueTodayForCategory(category);
+        if (cards.length == 0) {
+          cards = cardsDueToday();
+          category = null;
+        }
+      }
       var index = Math.floor(Math.random() * cards.length);
       return [cards[index]];
     }
@@ -82,6 +102,13 @@ if (Meteor.isClient) {
            
        }
   });
+  
+  Template.tagInAccordion.events({
+  	'click button.study': function() {
+  		console.log("clicked study button");
+                category = this.name;
+	}
+});
 
   Template.cardInAccordion.rendered = function() {
     $( "#accordion" ).accordion({
@@ -173,9 +200,20 @@ function cardsDueToday() {
 	return dueCards;
 }
 
+function cardsDueTodayForCategory(category) {
+	cards = Cards.find({tags: category}).fetch();
+	dueCards = [];
+	for (card in cards) {
+		if (cards[card]["next_scheduled"] < new Date()) {
+                  dueCards.push(cards[card]);
+		}
+	}
+	return dueCards
+}
+	
+
 if (Meteor.isServer) {
   Meteor.startup(function () {
-      console.log("server starting up");
       if (Cards.find().count() === 0) {
         Cards.insert({"question": "What is 2 + 2?",
                       "answer": "4",
@@ -199,8 +237,6 @@ if (Meteor.isServer) {
                       "categories": ["history", "lecture2"]
         });
       }
-      console.log(cardsInCategory({categories: "history"}));
-      console.log(cardCategories({"question": "What is 2 + 2?"}));
   });
 
   Cards.allowTags(function (userId) {

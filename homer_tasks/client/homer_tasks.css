@@ -124,6 +124,17 @@ header .hide-completed {
   }
 }
 
+.category {
+	font-size: 18px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+.study {
+	float: right;
+	font-size: 14px;
+}
+
 /* CARD */
 .card {
     width: 600px;

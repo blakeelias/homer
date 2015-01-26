@@ -9,9 +9,14 @@
   {{greeting}}
   <button id="create-user">Import</button>
   <div id="accordion">
+  <h3>8.02</h3>
+    <div>
     {{#each tags}}
-      {{> tag}}
+      <div class="category">
+      {{> tagInAccordion}}
+      </div>
     {{/each}}
+    </div>
     <h3>Math</h3>
     <div>
       <p>
@@ -46,6 +51,11 @@
       <input type="button" class="wrong" value="Wrong" />
     </div>
     {{/if}}
+  </div>
+  <div>
+    {{#each cardsInCategory}}
+      {{> cardBrowse}}
+    {{/each}}
   </div>
 
   <div id="dialog-form" title="Create new user">
@@ -86,6 +96,11 @@
   </div>
 </template>
 
+<template name="tagInAccordion">
+    {{name}}
+    <button class="study">Study</button>
+</template>
+
 <template name="tag">
   <h3>{{name}}</h3>
   <div>
@@ -99,4 +114,9 @@
 
 <template name="cardInAccordion">
   {{question}}
+</template>
+
+<template name="cardBrowse">
+  {{question}}
+  {{answer}}
 </template>
