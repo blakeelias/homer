@@ -130,7 +130,7 @@ header .hide-completed {
 	padding-bottom: 3px;
 }
 
-.study {
+.study, .browse {
 	float: right;
 	font-size: 14px;
 }

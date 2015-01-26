@@ -8,7 +8,8 @@ if (Meteor.isClient) {
   Meteor.subscribe("categories");
   Meteor.subscribe("tags");
   
-  var category = null;
+  var categoryToStudy = null;
+  var categoryToBrowse = null;
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -40,7 +41,8 @@ if (Meteor.isClient) {
       return tags;
     },
     cardsInCategory: function() {
-    	if (category == null) {
+        console.log(categoryToBrowse);
+    	if (categoryToBrowse == null) {
           return
         }
         return cards = Cards.find({tags: category}).fetch();
@@ -51,15 +53,15 @@ if (Meteor.isClient) {
     },
     nextCard: function() {
       var cards = [];
-      console.log(category);
-      if (category == null) {
+      console.log(categoryToStudy);
+      if (categoryToStudy == null) {
       	cards = cardsDueToday();
       }
       else {
-      	cards = cardsDueTodayForCategory(category);
+      	cards = cardsDueTodayForCategory(categoryToStudy);
         if (cards.length == 0) {
           cards = cardsDueToday();
-          category = null;
+          categoryToStudy = null;
         }
       }
       var index = Math.floor(Math.random() * cards.length);
@@ -106,8 +108,12 @@ if (Meteor.isClient) {
   Template.tagInAccordion.events({
   	'click button.study': function() {
   		console.log("clicked study button");
-                category = this.name;
-	}
+                categoryToStudy = this.name;
+	},
+        'click button.browse': function() {
+                console.log("clicked browse button");
+                categoryToBrowse = this.name;
+        }
 });
 
   Template.cardInAccordion.rendered = function() {
