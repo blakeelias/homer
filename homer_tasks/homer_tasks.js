@@ -39,7 +39,35 @@ if (Meteor.isClient) {
 
   Template.body.helpers({
     cards: function() {
-      return Cards.find(); //return Meteor.call("getCards");
+      var masterCardsCursor = Cards.find({
+        user: { $exists : false}
+      });
+
+      if (Meteor.user()) {
+        return masterCardsCursor.map(function(card) {
+          /**
+           * Find user's version of this card (which may have edited
+           * content)
+           *  
+           */
+          var getThisUserCard = function() {
+            return Cards.findOne({
+              'parentCard': card._id,
+              'user': Meteor.user()
+            });
+          }
+          var userCard = getThisUserCard();
+          if (!userCard) {
+            var newCardId = Meteor.call('createUserCard', card._id);
+            return getThisUserCard();
+          }
+          else {
+            return userCard;
+          }
+        });
+      } else {
+        return masterCardsCursor.fetch();
+      }
     },
     tags: function() {
       tags = Meteor.tags.find().fetch();
