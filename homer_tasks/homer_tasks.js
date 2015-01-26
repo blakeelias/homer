@@ -363,12 +363,19 @@ Meteor.methods({
     Cards.update(cardReference, updateObject);
   },
   createUserCard: function (cardReference) {
-    Cards.insert({
+    var newCardContent = {
       user: Meteor.user(),
       parentCard: cardReference,
       easiness: 2.5,
       next_scheduled: new Date(),
       history: []
-    });
+    };
+    Cards.update(
+      newCardContent,
+      newCardContent,
+      {
+        upsert: true
+      }
+    );
   }
 });
