@@ -82,6 +82,9 @@ if (Meteor.isClient) {
     },
     progress: function() {
       return Session.get('progress');
+    },
+    progressBarClass: function() {
+      return Session.get('learning') ? 'bar-primary' : 'bar-success';
     }
   });
 
