@@ -8,9 +8,9 @@ if (Meteor.isClient) {
   Meteor.subscribe("categories");
   Meteor.subscribe("tags");
   
-  var learn = false;
-  var categoryToStudy = null;
-  var categoryToBrowse = null;
+  Session.set("learning", false);
+  Session.set("categoryToReview", null);
+  Session.set("categoryToBrowse", null);
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -42,11 +42,12 @@ if (Meteor.isClient) {
       return tags;
     },
     cardsInCategory: function() {
+    	categoryToBrowse = Session.get("categoryToBrowse");
         console.log(categoryToBrowse);
     	if (categoryToBrowse == null) {
           return
         }
-        return cards = Cards.find({tags: category}).fetch();
+        return Cards.find({tags: categoryToBrowse}).fetch();
     },
     // ONLY USED FOR PART OF ACCORDION WE WANT TO GET RID OFF
     dueCards: function() {
@@ -54,20 +55,27 @@ if (Meteor.isClient) {
     },
     nextCard: function() {
       var cards = [];
-      console.log(categoryToStudy);
-      if (categoryToStudy == null) {
+      learning = Session.get("learning");
+      categoryToReview = Session.get("categoryToReview");
+      console.log("categoryToReview: ", categoryToReview);
+      console.log("learning: ", learning)
+      if (categoryToReview == null) {
       	cards = cardsDueToday();
       }
       else {
-        cards = cardsDueTodayForCategory(categoryToStudy, learn);
+        cards = cardsDueTodayForCategory(categoryToReview, learning);
         if (cards.length == 0) {
-          if (learn) {
-            learn = false;
+          if (learning) {
+            Session.set("learning", false);
           }
-          categoryToStudy == null;
+          Session.set("categoryToReview", null);
           cards = cardsDueToday();
         }
       }
+      /*
+      if (cards.length == 0) {
+        $('.card').html("Done studying");
+      }*/
       var index = Math.floor(Math.random() * cards.length);
       return [cards[index]];
     }
@@ -117,38 +125,17 @@ if (Meteor.isClient) {
   Template.tagInAccordion.events({
     'click button.learn': function() {
     	console.log("clicked learn button");
-    	learn = true;
-    	categoryToStudy = this.name;
-    	cards = cardsDueTodayForCategory(categoryToStudy, learn);
-      	var index = Math.floor(Math.random() * cards.length);
-      	card = cards[index];
-      	question = card["question"];
-      	answer = card["answer"];
-      	console.log("in learn button click, card id below");
-      	console.log(card["_id"]);
-    	$('.card').html('<div class="front">' +
-        		'<div>' + question + '</div>' +
-        		'<div class="answer">' + answer + '</div>' +
-        		'<div class="card-footer">' +
-            		'<span class="rank-number" data-html="true" data-original-title="I got this wrong<br/>(show again)" rating="0">WRONG</span>' +
-            		'<span class="rank-number" data-original-title="I barely know" rating="1">1</span>' +
-            		'<span class="rank-number" data-original-title="I know a little" rating="2">2</span>' +
-            		'<span class="rank-number" data-original-title="I sort of know" rating="3">3</span>' +
-            		'<span class="rank-number" data-original-title="I almost know" rating="4">4</span>' +
-            		'<span class="rank-number" data-original-title="I know it" rating="5">5</span>' +
-        		'</div>'
-  		);
-  		$('.card').attr('id', card["_id"]);
-  		console.log("id in learn button again");
-  		console.log(card["_id"]);
+    	Session.set("learning", true);
+    	Session.set("categoryToReview", this.name);
     },
   	'click button.review': function() {
   		console.log("clicked review button");
-        categoryToStudy = this.name;
+  		Session.set("learning", false);
+        Session.set("categoryToReview", this.name);
 	},
     'click button.browse': function() {
         console.log("clicked browse button");
-        categoryToBrowse = this.name;
+        Session.set("categoryToBrowse", this.name);
         $('table').show()
     }
 });

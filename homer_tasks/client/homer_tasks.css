@@ -130,9 +130,27 @@ header .hide-completed {
 	padding-bottom: 3px;
 }
 
-.study, .browse {
+.learn, .review, .browse {
 	float: right;
 	font-size: 14px;
+}
+
+table {
+	width: 1000px;
+	border: 1px solid black;
+	border-collapse: collapse;
+	background-color: white;
+	color: black;
+	margin-left: auto;
+	margin-right: auto;
+	display: none;
+}
+
+th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+	padding: 5px;
+	text-align: left;
 }
 
 /* CARD */

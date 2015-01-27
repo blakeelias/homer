@@ -58,11 +58,11 @@
     </div>
     {{/if}}
   </div>
-  <div>
+  <table>
     {{#each cardsInCategory}}
       {{> cardBrowse}}
     {{/each}}
-  </div>
+  </table>
 
   <div id="dialog-form" title="Create new user">
   <p class="validateTips">All form fields are required.</p>
@@ -125,6 +125,8 @@
 </template>
 
 <template name="cardBrowse">
-  {{question}}
-  {{answer}}
+    <tr>
+      <th>{{question}}</th>
+      <th>{{answer}}</th>
+	</tr>
 </template>
