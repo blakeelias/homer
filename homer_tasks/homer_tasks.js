@@ -65,17 +65,16 @@ if (Meteor.isClient) {
       else {
         cards = cardsDueTodayForCategory(categoryToReview, learning);
         if (cards.length == 0) {
-          if (learning) {
-            Session.set("learning", false);
-          }
+          Session.set("learning", false);
           Session.set("categoryToReview", null);
           cards = cardsDueToday();
         }
       }
-      /*
       if (cards.length == 0) {
-        $('.card').html("Done studying");
-      }*/
+        console.log("No cards left");
+        // TODO better way to display done studying
+        return [Cards.findOne({"question": "Done studying!"})];
+      }
       var index = Math.floor(Math.random() * cards.length);
       return [cards[index]];
     }
@@ -275,6 +274,10 @@ if (Meteor.isServer) {
                       "next_scheduled": new Date(),
                       "history": [],
                       "categories": ["history", "lecture2"]
+        });
+        // TODO don't want this, better way to display done studying
+        Cards.insert({"question": "Done studying!",
+        			  "answer": "Done studying!"
         });
       }
   });
