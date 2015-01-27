@@ -25,7 +25,11 @@ if (Meteor.isClient) {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
         console.log("You pressed the button");
-
+    },
+    'click button.reviewAll': function() {
+        console.log("clicked review all button");
+    	Session.set("learning", false);
+    	Session.set("categoryToReview", null);
     },
     'click input.easy':   function() { updateCurrentCard(3); },
     'click input.medium': function() { updateCurrentCard(2); },
