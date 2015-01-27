@@ -186,6 +186,7 @@ function updateCurrentCard(response) {
 
 function answerCard(cardReference, response) {
     console.log(cardReference);
+    var card = Cards.findOne(cardReference);
     console.log(card);
     if (card.user == undefined) {
       console.log('creating user card');
