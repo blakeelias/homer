@@ -188,7 +188,7 @@ function answerCard(cardReference, response) {
     console.log(cardReference);
     var card = Cards.findOne(cardReference);
     console.log(card);
-    if (card.user == undefined) {
+    if (card.userId == undefined) {
       console.log('creating user card');
       Meteor.call('createUserCard', card._id, response);
     } else {
@@ -255,12 +255,11 @@ function cardCategories(query) {
 }
 
 function cardsDueToday() {
-	//cards = Cards.find({userId: Meteor.user()._id}).fetch();
-	cards = Cards.find().fetch();
+	cards = Cards.find({userId: Meteor.user()._id}).fetch();
 	dueCards = [];
 	for (card in cards) {
 		if (cards[card]["next_scheduled"] < new Date()) {
-			dueCards.push(cards[card]);
+			dueCards.push(populateCardFromParent(cards[card]));
 		}
 	}
 	return dueCards;
@@ -270,20 +269,28 @@ function cardsDueTodayForCategory(category, learning) {
 	cards = Cards.find({tags: category}).fetch();
 	dueCards = [];
 	if (learning) {
-	  for (card in cards) {
-	    if (cards[card]["next_scheduled"] == null) {
-	      dueCards.push(cards[card]);
+	  for (i in cards) {
+	    if (Cards.find({
+	      parentCard: cards[i]._id,
+	      userId: Meteor.user()._id
+	    }).count() == 0) {
+	      dueCards.push(cards[i]);
 	    }
 	  }
-    }
-    else {
-	  for (card in cards) {
-		if (cards[card]["next_scheduled"] != null && cards[card]["next_scheduled"] < new Date()) {
-                  dueCards.push(cards[card]);
-		}
+  } else {
+    var userCards = Cards.find({
+      tags: category,
+      userId: Meteor.user()._id
+    }).fetch();
+	  for (i in userCards) {
+	    var card = populateCardFromParent(userCards[i]);
+		  if (card["next_scheduled"] != null && card["next_scheduled"] < new Date()) {
+        dueCards.push(card);
+		  }
 	  }
 	}
-	return dueCards;
+  console.log(dueCards);
+  return dueCards;
 }
 
 function populateCardFromParent(card) {
@@ -298,7 +305,7 @@ function populateCardFromParent(card) {
 function getUserCard(parentCardId) {
 	return Cards.findOne({
 		'parentCard': parentCardId,
-		'userId': Meteor.user()
+		'userId': Meteor.user()._id
 	});
 }
 if (Meteor.isServer) {
