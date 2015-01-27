@@ -11,6 +11,7 @@ if (Meteor.isClient) {
   Session.set("learning", false);
   Session.set("categoryToReview", null);
   Session.set("categoryToBrowse", null);
+  Session.set("progress", 60);
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -86,6 +87,9 @@ if (Meteor.isClient) {
         index = Math.floor(Math.random() * cards.length);
       }
       return [cards[index]];
+    },
+    progress: function() {
+      return Session.get('progress');
     }
   });
 
