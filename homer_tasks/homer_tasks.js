@@ -249,7 +249,8 @@ function cardCategories(query) {
 }
 
 function cardsDueToday() {
-	cards = Cards.find({userId: Meteor.user()._id}).fetch();
+	//cards = Cards.find({userId: Meteor.user()._id}).fetch();
+	cards = Cards.find().fetch();
 	dueCards = [];
 	for (card in cards) {
 		if (cards[card]["next_scheduled"] < new Date()) {
