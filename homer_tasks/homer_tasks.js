@@ -276,7 +276,8 @@ function cardsDueTodayForCategory(category, learning) {
 		}
 	  }
 	}
-	return dueCards
+	return dueCards;
+}
 
 function populateCardFromParent(card) {
   if (card.question == undefined || card.answer == undefined) {
