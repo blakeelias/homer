@@ -8,6 +8,7 @@ if (Meteor.isClient) {
   Meteor.subscribe("categories");
   Meteor.subscribe("tags");
   
+  var learn = false;
   var categoryToStudy = null;
   var categoryToBrowse = null;
 
@@ -58,10 +59,13 @@ if (Meteor.isClient) {
       	cards = cardsDueToday();
       }
       else {
-      	cards = cardsDueTodayForCategory(categoryToStudy);
+        cards = cardsDueTodayForCategory(categoryToStudy, learn);
         if (cards.length == 0) {
+          if (learn) {
+            learn = false;
+          }
+          categoryToStudy == null;
           cards = cardsDueToday();
-          categoryToStudy = null;
         }
       }
       var index = Math.floor(Math.random() * cards.length);
@@ -80,9 +84,14 @@ if (Meteor.isClient) {
 
           if ($(event.target).attr('class') == 'rank-number') {
             // TODO: store rating
-            var cardReference = {'_id': this._id};
+            console.log("id below");
+            var id = $('.card').attr('id')
+            console.log(id);
+            var cardReference = {'_id': id};
             var response = $(event.target).attr('rating');
             console.log(response)
+            console.log("in click card thing, card ref following");
+            console.log(cardReference);
             updateCard(cardReference, response);
           } else {
             $('.card').flip({
@@ -106,14 +115,42 @@ if (Meteor.isClient) {
   });
   
   Template.tagInAccordion.events({
-  	'click button.study': function() {
-  		console.log("clicked study button");
-                categoryToStudy = this.name;
+    'click button.learn': function() {
+    	console.log("clicked learn button");
+    	learn = true;
+    	categoryToStudy = this.name;
+    	cards = cardsDueTodayForCategory(categoryToStudy, learn);
+      	var index = Math.floor(Math.random() * cards.length);
+      	card = cards[index];
+      	question = card["question"];
+      	answer = card["answer"];
+      	console.log("in learn button click, card id below");
+      	console.log(card["_id"]);
+    	$('.card').html('<div class="front">' +
+        		'<div>' + question + '</div>' +
+        		'<div class="answer">' + answer + '</div>' +
+        		'<div class="card-footer">' +
+            		'<span class="rank-number" data-html="true" data-original-title="I got this wrong<br/>(show again)" rating="0">WRONG</span>' +
+            		'<span class="rank-number" data-original-title="I barely know" rating="1">1</span>' +
+            		'<span class="rank-number" data-original-title="I know a little" rating="2">2</span>' +
+            		'<span class="rank-number" data-original-title="I sort of know" rating="3">3</span>' +
+            		'<span class="rank-number" data-original-title="I almost know" rating="4">4</span>' +
+            		'<span class="rank-number" data-original-title="I know it" rating="5">5</span>' +
+        		'</div>'
+  		);
+  		$('.card').attr('id', card["_id"]);
+  		console.log("id in learn button again");
+  		console.log(card["_id"]);
+    },
+  	'click button.review': function() {
+  		console.log("clicked review button");
+        categoryToStudy = this.name;
 	},
-        'click button.browse': function() {
-                console.log("clicked browse button");
-                categoryToBrowse = this.name;
-        }
+    'click button.browse': function() {
+        console.log("clicked browse button");
+        categoryToBrowse = this.name;
+        $('table').show()
+    }
 });
 
   Template.cardInAccordion.rendered = function() {
@@ -140,6 +177,8 @@ function updateCurrentCard(response) {
 function updateCard(cardReference, response) {
     var nowDate = new Date();
     var card = Cards.findOne(cardReference);
+    console.log(cardReference);
+    console.log(card);
     var reviewNumber = card.history.length;
     storeCardSnapshot(cardReference);
     var easiness = newEasinessFactor(card.easiness, response);
@@ -206,17 +245,25 @@ function cardsDueToday() {
 	return dueCards;
 }
 
-function cardsDueTodayForCategory(category) {
+function cardsDueTodayForCategory(category, learning) {
 	cards = Cards.find({tags: category}).fetch();
 	dueCards = [];
-	for (card in cards) {
-		if (cards[card]["next_scheduled"] < new Date()) {
+	if (learning) {
+	  for (card in cards) {
+	    if (cards[card]["next_scheduled"] == null) {
+	      dueCards.push(cards[card]);
+	    }
+	  }
+    }
+    else {
+	  for (card in cards) {
+		if (cards[card]["next_scheduled"] != null && cards[card]["next_scheduled"] < new Date()) {
                   dueCards.push(cards[card]);
 		}
+	  }
 	}
 	return dueCards
-}
-	
+}	
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
