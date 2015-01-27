@@ -108,7 +108,7 @@ if (Meteor.isClient) {
             console.log(response)
             console.log("in click card thing, card ref following");
             console.log(cardReference);
-            updateCard(cardReference, response);
+            answerCard(cardReference, response);
           } else {
             $('.card').flip({
               direction: "rl",
@@ -181,46 +181,51 @@ if (Meteor.isClient) {
 
 function updateCurrentCard(response) {
     var selectedCardReference = Session.get('selectedCard');
-    updateCard(selectedCardReference, response);
+    answerCard(selectedCardReference, response);
 }
 
-function updateCard(cardReference, response) {
-    var nowDate = new Date();
-    var card = Cards.findOne(cardReference);
+function answerCard(cardReference, response) {
     console.log(cardReference);
     console.log(card);
     if (card.user == undefined) {
-      Meteor.call('createUserCard', card._id);
-      card = getUserCard(card._id);
-    }
-    var reviewNumber = card.history.length;
-    storeCardSnapshot(cardReference);
-    var easiness = newEasinessFactor(card.easiness, response);
-    if (response == 0) {
-      var interval = 0;
+      console.log('creating user card');
+      Meteor.call('createUserCard', card._id, response);
     } else {
-      if (reviewNumber == 0) {
-        var interval = 1;
-      } else if (reviewNumber == 1) {
-        var interval = 6;
-      } else {
-        var daysSinceLastSeen = (nowDate - card.last_seen) / (1000 * 60 * 60 * 24);
-        console.log('days since last seen: ' + daysSinceLastSeen);
-        var interval = easiness * daysSinceLastSeen;
-      }
+      updateCard(cardReference, response);
     }
-    var nextReview = moment(nowDate);
-    console.log('interval days: ' + interval);
-    nextReview.add(interval, 'days');
-    console.log(nextReview);
-    Meteor.call("updateCard", cardReference, {
-        $set: {
-            'last_seen' : nowDate,
-            'last_response': response,
-            'easiness': easiness,
-            'next_scheduled': nextReview._d
-        }
-    });
+}
+
+function updateCard(cardReference, response) {
+  var nowDate = new Date();
+  var card = Cards.findOne(cardReference);
+	var reviewNumber = card.history.length;
+	storeCardSnapshot(cardReference);
+	var easiness = newEasinessFactor(card.easiness, response);
+	if (response == 0) {
+		var interval = 0;
+	} else {
+		if (reviewNumber == 0) {
+			var interval = 1;
+		} else if (reviewNumber == 1) {
+			var interval = 6;
+		} else {
+			var daysSinceLastSeen = (nowDate - card.last_seen) / (1000 * 60 * 60 * 24);
+			console.log('days since last seen: ' + daysSinceLastSeen);
+			var interval = easiness * daysSinceLastSeen;
+		}
+	}
+	var nextReview = moment(nowDate);
+	console.log('interval days: ' + interval);
+	nextReview.add(interval, 'days');
+	console.log(nextReview);
+	Meteor.call("updateCard", cardReference, {
+			$set: {
+					'last_seen' : nowDate,
+					'last_response': response,
+					'easiness': easiness,
+					'next_scheduled': nextReview._d
+			}
+	});
 }
 
 function storeCardSnapshot(cardReference) {
@@ -292,7 +297,7 @@ function populateCardFromParent(card) {
 function getUserCard(parentCardId) {
 	return Cards.findOne({
 		'parentCard': parentCardId,
-		'user': Meteor.user()
+		'userId': Meteor.user()
 	});
 }
 if (Meteor.isServer) {
@@ -356,7 +361,7 @@ Meteor.methods({
   updateCard: function (cardReference, updateObject) {
     Cards.update(cardReference, updateObject);
   },
-  createUserCard: function (cardReference) {
+  createUserCard: function (cardReference, response) {
     var newCardContent = {
       userId: Meteor.user()._id,
       parentCard: cardReference,
@@ -364,12 +369,8 @@ Meteor.methods({
       next_scheduled: new Date(),
       history: []
     };
-    Cards.update(
-      newCardContent,
-      newCardContent,
-      {
-        upsert: true
-      }
-    );
+    Cards.insert(newCardContent, function(err, id) {
+      updateCard(id, response);
+    });
   }
 });
