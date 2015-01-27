@@ -39,42 +39,9 @@ if (Meteor.isClient) {
 
   Template.body.helpers({
     cards: function() {
-      var masterCardsCursor = Cards.find({
-        user: { $exists : false}
-      });
-      /*console.log("masterCardsCursor.count()");
-      console.log(masterCardsCursor.count());*/
-
-      if (Meteor.user()) {
-        return masterCardsCursor.map(function(card) {
-          /**
-           * Find user's version of this card (which may have edited
-           * content)
-           *  
-           */
-          debugger;
-          var getThisUserCard = function() {
-            return Cards.findOne({
-              'parentCard': card._id,
-              'user': Meteor.user()
-            });
-          }
-          var userCard = getThisUserCard();
-					console.log("card");
-          console.log(card);
-          console.log("userCard");
-          console.log(userCard);
-          if (!userCard) {
-            Meteor.call('createUserCard', card._id);
-            return getThisUserCard();
-          }
-          else {
-            return userCard;
-          }
-        });
-      } else {
-        return masterCardsCursor.fetch();
-      }
+      return Cards.find({
+        userId: Meteor.user()._id
+      }).fetch();
     },
     tags: function() {
       tags = Meteor.tags.find().fetch();
@@ -282,7 +249,7 @@ function cardCategories(query) {
 }
 
 function cardsDueToday() {
-	cards = Cards.find().fetch();
+	cards = Cards.find({userId: Meteor.user()._id}).fetch();
 	dueCards = [];
 	for (card in cards) {
 		if (cards[card]["next_scheduled"] < new Date()) {
@@ -389,7 +356,7 @@ Meteor.methods({
   },
   createUserCard: function (cardReference) {
     var newCardContent = {
-      user: Meteor.user(),
+      userId: Meteor.user()._id,
       parentCard: cardReference,
       easiness: 2.5,
       next_scheduled: new Date(),
