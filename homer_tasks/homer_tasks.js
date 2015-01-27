@@ -310,6 +310,14 @@ function cardsDueTodayForCategory(category, learning) {
 	  }
 	}
 	return dueCards
+
+function populateCardFromParent(card) {
+  if (card.question == undefined || card.answer == undefined) {
+    var parentCard = Cards.findOne({_id: card.parentCard});
+    card.question = parentCard.question;
+    card.answer = parentCard.answer;
+  }
+  return card;
 }
 
 function getUserCard(parentCardId) {
