@@ -222,6 +222,10 @@ function updateCard(cardReference, response) {
     var card = Cards.findOne(cardReference);
     console.log(cardReference);
     console.log(card);
+    if (card.user == undefined) {
+      Meteor.call('createUserCard', card._id);
+      card = getUserCard(card._id);
+    }
     var reviewNumber = card.history.length;
     storeCardSnapshot(cardReference);
     var easiness = newEasinessFactor(card.easiness, response);
@@ -306,8 +310,14 @@ function cardsDueTodayForCategory(category, learning) {
 	  }
 	}
 	return dueCards
-}	
+}
 
+function getUserCard(parentCardId) {
+	return Cards.findOne({
+		'parentCard': parentCardId,
+		'user': Meteor.user()
+	});
+}
 if (Meteor.isServer) {
   Meteor.startup(function () {
       if (Cards.find().count() === 0) {
