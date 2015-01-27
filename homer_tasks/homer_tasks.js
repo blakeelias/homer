@@ -75,7 +75,10 @@ if (Meteor.isClient) {
         // TODO better way to display done studying
         return [Cards.findOne({"question": "Done studying!"})];
       }
-      var index = Math.floor(Math.random() * cards.length);
+      var index = 0;
+      if (!learning) {
+        index = Math.floor(Math.random() * cards.length);
+      }
       return [cards[index]];
     }
   });
@@ -134,8 +137,23 @@ if (Meteor.isClient) {
 	},
     'click button.browse': function() {
         console.log("clicked browse button");
-        Session.set("categoryToBrowse", this.name);
-        $('table').show()
+        console.log("categoryToBrowse", Session.get("categoryToBrowse"));
+        currentCategory = Session.get("categoryToBrowse");
+        if (currentCategory == null) {
+          Session.set("categoryToBrowse", this.name);
+          $('table').show()
+          $(event.target).attr('class', 'btn btn-xs btn-info browse');
+        }
+        else if (currentCategory != this.name) {
+          $('.browse').attr('class', 'btn btn-xs btn-default browse');
+          Session.set("categoryToBrowse", this.name);
+          $(event.target).attr('class', 'btn btn-xs btn-info browse');
+        }
+        else {
+          Session.set("categoryToBrowse", null);
+          $('table').hide();
+          $('.browse').attr('class', 'btn btn-xs btn-default browse');
+        }
     }
 });
 

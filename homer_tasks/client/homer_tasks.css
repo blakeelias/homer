@@ -126,13 +126,8 @@ header .hide-completed {
 
 .category {
 	font-size: 18px;
-	padding-top: 3px;
-	padding-bottom: 3px;
-}
-
-.learn, .review, .browse {
-	float: right;
-	font-size: 14px;
+	padding-top: 4px;
+	padding-bottom: 4px;
 }
 
 table {
