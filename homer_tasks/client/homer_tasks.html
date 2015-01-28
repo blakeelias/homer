@@ -73,12 +73,15 @@
         <input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
         <div class="answer">{{answer}}</div>
         <div class="card-footer">
-            <span class="rank-number" data-html="true" data-original-title="I got this wrong<br/>(show again)" rating="0">WRONG</span>
-            <span class="rank-number" data-original-title="I barely know" rating="1">1</span>
-            <span class="rank-number" data-original-title="I know a little" rating="2">2</span>
-            <span class="rank-number" data-original-title="I sort of know" rating="3">3</span>
-            <span class="rank-number" data-original-title="I almost know" rating="4">4</span>
-            <span class="rank-number" data-original-title="I know it" rating="5">5</span>
+        	{{#each buttons}}
+        		{{> button}}
+        	{{/each}}
+            <!--span class="rank-number" data-html="true" data-original-title="I got this wrong<br/>(show again)" rating="0">WRONG</span>
+            <span class="rank-number" data-html="true" data-original-title="I barely know<br/>{{days}} days" rating="1">1</span>
+            <span class="rank-number" data-html="true" data-original-title="I know a little<br/>{{days}} days" rating="2">2</span>
+            <span class="rank-number" data-html="true" data-original-title="I sort of know<br/>{{days}} days" rating="3">3</span>
+            <span class="rank-number" data-html="true" data-original-title="I almost know<br/>{{days}} days" rating="4">4</span>
+            <span class="rank-number" data-html="true" data-original-title="I know it<br/>{{days}} days" rating="5">5</span-->
         </div>
     </div>
   </div>
@@ -111,4 +114,8 @@
       <th>{{question}}</th>
       <th>{{answer}}</th>
 	</tr>
+</template>
+
+<template name="button">
+	<span class="rank-number" data-html="true" data-original-title="{{display1}}<br/>{{days}}" rating="{{rating}}">{{display2}}</span>
 </template>
