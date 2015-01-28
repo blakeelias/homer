@@ -10,8 +10,7 @@ if (Meteor.isClient) {
   
   Session.set("learning", false);
   Session.set("categoryToReview", null);
-  Session.set('numCardsSeen', 0);
-  Session.set('numCardsTotal', 0);
+  updateProgressBar(0, 0);
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -140,14 +139,7 @@ if (Meteor.isClient) {
       console.log("clicked learn button");
       Session.set("learning", true);
       Session.set("categoryToReview", this.name);
-      Session.set('numCardsTotal', Cards.find({
-        tags: this.name,
-        userId: { $exists: false }
-      }).count());
-      Session.set('numCardsSeen', Cards.find({
-        tags: this.name,
-        userId: Meteor.userId()
-      }).count());
+      updateProgressBarLearning();
     },
     'click button.review': function() {
   		console.log("clicked review button");
@@ -210,8 +202,7 @@ function reviewAll() {
   console.log("reviewing all cards due today");
   Session.set("learning", false);
   Session.set("categoryToReview", null);
-  Session.set('numCardsSeen', 0);
-  Session.set('numCardsTotal', cardsDueToday().length);
+  updateProgressBar(0, cardsDueToday().length);
 
   // maybe?
   // Session.set("categoryToBrowse", null);
@@ -236,8 +227,9 @@ function answerCard(cardReference, response, yourAnswer) {
     } else {
       updateCard(cardReference, response, yourAnswer);
     }
-    if (isCorrect(response)) {
-      Session.set('numCardsSeen', Session.get('numCardsTotal') - cardsDueToday().length);
+    if (isCorrect(response) || Session.get('learning')) {
+      incrementProgressBar();
+      //updateProgressBarReviewing(Session.get('numCardsTotal') - cardsDueToday().length);
     }
 }
 
@@ -360,6 +352,27 @@ function inputFocus(i){
 }
 function inputBlur(i){
     if(i.value==""){ i.value=i.defaultValue; i.style.color="#888"; }
+
+function incrementProgressBar() {
+  Session.set('numCardsSeen', Session.get('numCardsSeen') + 1)
+}
+
+function updateProgressBarLearning() {
+  updateProgressBar(
+    Cards.find({
+      tags: Session.get('categoryToReview'),
+      userId: Meteor.userId()
+    }).count(),
+    Cards.find({
+      tags: Session.get('categoryToReview'),
+      userId: { $exists: false }
+    }).count()
+  );
+}
+
+function updateProgressBar(numSeen, numTotal) {
+  Session.set('numCardsSeen', numSeen);
+  Session.set('numCardsTotal', numTotal);
 }
 
 if (Meteor.isServer) {
