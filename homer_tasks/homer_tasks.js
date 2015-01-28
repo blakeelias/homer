@@ -11,7 +11,6 @@ if (Meteor.isClient) {
   Session.set("learning", false);
   Session.set("categoryToReview", null);
   Session.set("categoryToBrowse", null);
-  Session.set("progress", 60);
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -21,16 +20,18 @@ if (Meteor.isClient) {
     return Cards.findOne(Session.get("selectedCard"));
   };
 
-    Template.body.events({
+  Template.body.events({
     'click input.import' : function () {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
         console.log("You pressed the button");
     },
     'click button.reviewAll': function() {
-        console.log("clicked review all button");
+      console.log("clicked review all button");
     	Session.set("learning", false);
     	Session.set("categoryToReview", null);
+      Session.set('numCardsSeen', 0);
+      Session.set('numCardsTotal', cardsDueToday().length);
     },
   });
 
@@ -81,7 +82,13 @@ if (Meteor.isClient) {
       return [cards[index]];
     },
     progress: function() {
-      return Session.get('progress');
+      return Session.get('numCardsSeen') / Session.get('numCardsTotal') * 100;
+    },
+    numCardsSeen: function() {
+      return Session.get('numCardsSeen');
+    },
+    numCardsTotal: function() {
+      return Session.get('numCardsTotal');
     },
     progressBarClass: function() {
       return Session.get('learning') ? 'bar-primary' : 'bar-success';
@@ -196,6 +203,7 @@ function answerCard(cardReference, response, yourAnswer) {
     console.log(cardReference);
     var card = Cards.findOne(cardReference);
     console.log(card);
+    Session.set('numCardsSeen', 1 + Session.get('numCardsSeen'));
     if (card.userId == undefined) {
       console.log('creating user card');
       Meteor.call('createUserCard', card._id, response, yourAnswer);
