@@ -159,10 +159,15 @@ if (Meteor.isClient) {
     }
 });
 
+Template.card.rendered = function() {
+	MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+}
+
   Template.body.rendered = function() {
     $( "#accordion" ).accordion({
       collapsible: true
     });
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
 
   Accounts.ui.config({
