@@ -26,8 +26,8 @@
   </div>
   <div class="cards">
     <div class="progress">
-      <div class="bar {{progressBarClass}}" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%;">
-        <span class="sr-only">{{progress}}% Complete ({{numCardsSeen}} / {{numCardsTotal}})</span>
+      <div class="bar {{progressBarClass}}" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%; min-width: 5em">
+        <span class="sr-only">{{numCardsSeen}} / {{numCardsTotal}}</span>
       </div>
     </div>
 

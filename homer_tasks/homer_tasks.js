@@ -10,7 +10,8 @@ if (Meteor.isClient) {
   
   Session.set("learning", false);
   Session.set("categoryToReview", null);
-  Session.set("categoryToBrowse", null);
+  Session.set('numCardsSeen', 0);
+  Session.set('numCardsTotal', 0);
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
