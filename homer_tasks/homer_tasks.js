@@ -237,15 +237,14 @@ function answerCard(cardReference, response, yourAnswer) {
 function updateCard(cardReference, response, yourAnswer) {
   var nowDate = new Date();
   var card = Cards.findOne(cardReference);
-	var reviewNumber = card.history.length;
 	storeCardSnapshot(cardReference);
 	var easiness = newEasinessFactor(card.easiness, response);
 	if (response == 0) {
 		var interval = 0;
 	} else {
-		if (reviewNumber == 0) {
+		if (card.consecutiveCorrect == 0) {
 			var interval = 1;
-		} else if (reviewNumber == 1) {
+		} else if (card.consecutiveCorrect == 1) {
 			var interval = 6;
 		} else {
 			var daysSinceLastSeen = (nowDate - card.last_seen) / (1000 * 60 * 60 * 24);
@@ -263,7 +262,8 @@ function updateCard(cardReference, response, yourAnswer) {
 					'last_response': response,
 					'easiness': easiness,
 					'next_scheduled': nextReview._d,
-					'yourAnswer': yourAnswer
+					'yourAnswer': yourAnswer,
+					'consecutiveCorrect': (response > 0) ? (card.consecutiveCorrect + 1) : 0
 			}
 	});
 }
@@ -466,7 +466,8 @@ Meteor.methods({
       easiness: 2.5,
       next_scheduled: new Date(),
       history: [],
-      tags: Cards.findOne(cardReference).tags
+      tags: Cards.findOne(cardReference).tags,
+      consecutiveCorrect: 0
     };
     Cards.insert(newCardContent, function(err, id) {
       updateCard(id, rating, yourAnswer);
