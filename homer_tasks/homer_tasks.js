@@ -174,7 +174,8 @@ Template.card.rendered = function() {
 
   Template.body.rendered = function() {
     $( "#accordion" ).accordion({
-      collapsible: true
+      collapsible: true,
+      heightStyle: "content"
     });
     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
