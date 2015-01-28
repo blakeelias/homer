@@ -86,6 +86,32 @@ if (Meteor.isClient) {
       return Cards.find({tags:tag});
     }
   });
+  
+  Template.card.helpers({
+  	buttons: function() {
+  	  return [{display1: "I got this wrong", days: "(show again)", rating: 0, display2: "WRONG"},
+  	  		  {display1: "I barely know", days: computeInterval(this.consecutiveCorrect, this.last_seen, 1, new Date(), newEasinessFactor(this.easiness, 1)), rating: 1, display2: 1},
+  	  		  {display1: "I know a little", days: computeInterval(this.consecutiveCorrect, this.last_seen, 2, new Date(), newEasinessFactor(this.easiness, 2)), rating: 2, display2: 2},
+  	  		  {display1: "I sort of know", days: computeInterval(this.consecutiveCorrect, this.last_seen, 3, new Date(), newEasinessFactor(this.easiness, 3)), rating: 3, display2: 3},
+  	  		  {display1: "I almost know", days: computeInterval(this.consecutiveCorrect, this.last_seen, 4, new Date(), newEasinessFactor(this.easiness, 4)), rating: 4, display2: 4},
+  	  		  {display1: "I know it", days: computeInterval(this.consecutiveCorrect, this.last_seen, 5, new Date(), newEasinessFactor(this.easiness, 5)), rating: 5, display2: 5}];
+  	}
+  });
+  
+  Template.button.helpers({
+  	display1: function() {
+  	  return this.display1;
+  	},
+  	days: function() {
+  	  return this.days;
+  	},
+  	rating: function() {
+  	  return this.rating;
+  	},
+  	display2: function() {
+  	  return this.display2;
+  	}
+  });
 
   Template.card.events({
        'click .card':   function(event, template) {
@@ -208,19 +234,7 @@ function updateCard(cardReference, response, yourAnswer) {
   var card = Cards.findOne(cardReference);
 	storeCardSnapshot(cardReference);
 	var easiness = newEasinessFactor(card.easiness, response);
-	if (response == 0) {
-		var interval = 0;
-	} else {
-		if (card.consecutiveCorrect == 0) {
-			var interval = 1;
-		} else if (card.consecutiveCorrect == 1) {
-			var interval = 6;
-		} else {
-			var daysSinceLastSeen = (nowDate - card.last_seen) / (1000 * 60 * 60 * 24);
-			console.log('days since last seen: ' + daysSinceLastSeen);
-			var interval = easiness * daysSinceLastSeen;
-		}
-	}
+	var interval = computeInterval(card.consecutiveCorrect, card.last_seen, response, nowDate, easiness);
 	var nextReview = moment(nowDate);
 	console.log('interval days: ' + interval);
 	nextReview.add(interval, 'days');
@@ -235,6 +249,25 @@ function updateCard(cardReference, response, yourAnswer) {
 					'consecutiveCorrect': (response > 0) ? (card.consecutiveCorrect + 1) : 0
 			}
 	});
+}
+
+function computeInterval(consecutiveCorrect, last_seen, response, nowDate, easiness) {
+	if (response == 0) {
+		return 0;
+	} else {
+		if (consecutiveCorrect == 0 || consecutiveCorrect == null) {
+			return 1;
+		} else if (consecutiveCorrect == 1) {
+			return 6;
+		} else {
+		    console.log("nowDate: ", nowDate);
+		    console.log("easiness: ", easiness);
+		    console.log("card.last_seen: ", last_seen)
+			var daysSinceLastSeen = (nowDate - last_seen) / (1000 * 60 * 60 * 24);
+			console.log('days since last seen: ' + daysSinceLastSeen);
+			return easiness * daysSinceLastSeen;
+		}
+	}
 }
 
 function storeCardSnapshot(cardReference) {
