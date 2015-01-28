@@ -110,7 +110,8 @@ if (Meteor.isClient) {
             console.log(response)
             console.log("in click card thing, card ref following");
             console.log(cardReference);
-            answerCard(cardReference, response);
+            yourAnswer = $('.card div').find(".yourAnswer").val();
+            answerCard(cardReference, response, yourAnswer);
           } else {
             $('.card').flip({
               direction: "rl",
@@ -120,9 +121,6 @@ if (Meteor.isClient) {
                    $('.card div').find(".answer").show()
                    $('.card div').find(".card-footer").show();
                    $('.card div').find(".yourAnswer").attr("readonly", "readonly");
-                   yourAnswer = $('.card div').find(".yourAnswer").val();
-                   cardReference = {'_id': $('.card').attr('id')};
-                   Meteor.call("updateYourAnswers", cardReference, yourAnswer);
 
                    // Initialize card events
                    $(".card-footer span").tooltip({
@@ -190,19 +188,19 @@ function updateCurrentCard(response) {
     answerCard(selectedCardReference, response);
 }
 
-function answerCard(cardReference, response) {
+function answerCard(cardReference, response, yourAnswer) {
     console.log(cardReference);
     var card = Cards.findOne(cardReference);
     console.log(card);
     if (card.userId == undefined) {
       console.log('creating user card');
-      Meteor.call('createUserCard', card._id, response);
+      Meteor.call('createUserCard', card._id, response, yourAnswer);
     } else {
-      updateCard(cardReference, response);
+      updateCard(cardReference, response, yourAnswer);
     }
 }
 
-function updateCard(cardReference, response) {
+function updateCard(cardReference, response, yourAnswer) {
   var nowDate = new Date();
   var card = Cards.findOne(cardReference);
 	var reviewNumber = card.history.length;
@@ -230,7 +228,8 @@ function updateCard(cardReference, response) {
 					'last_seen' : nowDate,
 					'last_response': response,
 					'easiness': easiness,
-					'next_scheduled': nextReview._d
+					'next_scheduled': nextReview._d,
+					'yourAnswer': yourAnswer
 			}
 	});
 }
@@ -388,20 +387,23 @@ Meteor.methods({
   },
   updateYourAnswers: function (cardReference, yourAnswer) {
     card = Cards.findOne(cardReference);
+    console.log(card);
     var yourAnswers = card["yourAnswers"];
     console.log("yourAnswers: ", yourAnswers);
     console.log("yourAnswer: ", yourAnswer);
     yourAnswers.push(yourAnswer);
     console.log("yourAnswers after: ", yourAnswers);
     delete card["yourAnswers"];
+    console.log("card after deleting yourAnswers", card);
     console.log("yourAnswers after delete", yourAnswers);
     Cards.update(cardReference, {
       $push: {
         'yourAnswers': yourAnswers
       }
     })
+    console.log("card after pushing yourAnswers", card);
   },
-  createUserCard: function (cardReference, response) {
+  createUserCard: function (cardReference, rating, yourAnswer) {
     var newCardContent = {
       userId: Meteor.user()._id,
       parentCard: cardReference,
@@ -410,7 +412,7 @@ Meteor.methods({
       history: []
     };
     Cards.insert(newCardContent, function(err, id) {
-      updateCard(id, response);
+      updateCard(id, rating, yourAnswer);
     });
   }
 });
