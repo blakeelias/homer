@@ -167,7 +167,7 @@ if (Meteor.isClient) {
     }
 });
 
-  Template.cardInAccordion.rendered = function() {
+  Template.body.rendered = function() {
     $( "#accordion" ).accordion({
       collapsible: true
     });
