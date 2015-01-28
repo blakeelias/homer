@@ -51,10 +51,6 @@ if (Meteor.isClient) {
         }
         return Cards.find({tags: categoryToBrowse}).fetch();
     },
-    // ONLY USED FOR PART OF ACCORDION WE WANT TO GET RID OFF
-    dueCards: function() {
-    	return cardsDueToday();
-    },
     nextCard: function() {
       var cards = [];
       learning = Session.get("learning");
