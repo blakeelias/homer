@@ -185,6 +185,14 @@ if (Meteor.isClient) {
 	Meteor.startup(function () {
 		console.log("in Meteor.startup");
 		showInputForm();
+		Tracker.autorun(function (computation) {
+      if (Meteor.userId() != null) {
+        reviewAll();
+        if (cardsDueToday().length > 0) {
+          computation.stop();
+        }
+      }
+    });
 	});
 }
 
@@ -282,7 +290,7 @@ function cardCategories(query) {
 }
 
 function cardsDueToday() {
-	cards = Cards.find({userId: Meteor.user()._id}).fetch();
+	cards = Cards.find({userId: Meteor.userId()}).fetch();
 	dueCards = [];
 	for (card in cards) {
 		if (cards[card]["next_scheduled"] < new Date()) {
