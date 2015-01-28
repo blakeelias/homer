@@ -144,8 +144,14 @@ if (Meteor.isClient) {
       console.log("clicked learn button");
       Session.set("learning", true);
       Session.set("categoryToReview", this.name);
-      Session.set('numCardsTotal', Cards.find({tags: this.name}).count());
-      Session.set('numCardsSeen', Cards.find({tags: this.name}).count());
+      Session.set('numCardsTotal', Cards.find({
+        tags: this.name,
+        userId: { $exists: false }
+      }).count());
+      Session.set('numCardsSeen', Cards.find({
+        tags: this.name,
+        userId: Meteor.userId()
+      }).count());
     },
     'click button.review': function() {
   		console.log("clicked review button");
@@ -413,7 +419,8 @@ Meteor.methods({
       parentCard: cardReference,
       easiness: 2.5,
       next_scheduled: new Date(),
-      history: []
+      history: [],
+      tags: Cards.findOne(cardReference).tags
     };
     Cards.insert(newCardContent, function(err, id) {
       updateCard(id, response);
