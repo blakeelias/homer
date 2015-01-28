@@ -11,23 +11,31 @@
   <h1>Question list</h1>
   {{greeting}}
   <button id="create-user">Import</button>
-  <div id="accordion">
-  <h3>8.02</h3>
-    <div>
-    <button class="btn btn-xs btn-success reviewAll" style="float: left">Review All</button>
-    <br>
-    <br>
-    {{#each tags}}
-      <div class="category">
-      {{> tagInAccordion}}
-      </div>
-    {{/each}}
-    </div>
-  </div>
-  <div class="cards">
-    {{#each nextCard}}
-      {{> card}}
-    {{/each}}
+  <div class="container-fluid">
+	  <div class="row">
+		  <div class="col-md-4">
+			  <div id="accordion" style="width: 33%">
+			  <h3>8.02</h3>
+				<div>
+				<button class="btn btn-xs btn-success reviewAll" style="float: left">Review All</button>
+				<br>
+				<br>
+				{{#each tags}}
+				  <div class="category">
+				  {{> tagInAccordion}}
+				  </div>
+				{{/each}}
+				</div>
+			  </div>
+		  </div>
+		  <div class="col-md-8">
+			  <div class="cards">
+				{{#each nextCard}}
+				  {{> card}}
+				{{/each}}
+			  </div>
+		  </div>
+	  </div>
   </div>
   <table>
     {{#each cardsInCategory}}
