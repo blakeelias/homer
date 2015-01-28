@@ -104,6 +104,11 @@ if (Meteor.isClient) {
             console.log(cardReference);
             yourAnswer = $('.card div').find(".yourAnswer").val();
             answerCard(cardReference, response, yourAnswer);
+            
+            $('.card div').find(".answer").hide()
+            $('.card div').find(".card-footer").hide();
+            $('.card div').find(".yourAnswer").attr("readonly", false);
+            
           } else {
             $('.card').flip({
               direction: "rl",
