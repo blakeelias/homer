@@ -187,9 +187,10 @@ if (Meteor.isClient) {
 		showInputForm();
 		Tracker.autorun(function (computation) {
       if (Meteor.userId() != null) {
-        reviewAll();
-        if (cardsDueToday().length > 0) {
+        if (cardsDueToday().length > 0 && Session.get('numCardsSeen') > 0) {
           computation.stop();
+        } else {
+          reviewAll();
         }
       }
     });
