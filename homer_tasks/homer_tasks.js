@@ -31,10 +31,6 @@ if (Meteor.isClient) {
     	Session.set("learning", false);
     	Session.set("categoryToReview", null);
     },
-    'click input.easy':   function() { updateCurrentCard(3); },
-    'click input.medium': function() { updateCurrentCard(2); },
-    'click input.hard':   function() { updateCurrentCard(1); },
-    'click input.wrong':  function() { updateCurrentCard(0); }
   });
 
   Template.body.helpers({

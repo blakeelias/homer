@@ -23,43 +23,11 @@
       </div>
     {{/each}}
     </div>
-    <h3>Math</h3>
-    <div>
-      <p>
-      Math cards
-      </p>
-      <p>
-        Stoke's Theorem $$\oint_C{\bf F}\cdot d{\bf r}=\iint\limits_S\nabla \times \,{\bf F}\cdot d{\bf S}$$
-      </p>
-    </div>
-    <h3>History</h3>
-    <div>
-      <p>
-      History cards
-      </p>
-    </div>
-    <h3>Cards Due Today</h3>
-    <div>
-      {{#each dueCards}}
-        <div>
-        {{> cardInAccordion}}
-        </div>
-      {{/each}}
-    </div>
   </div>
   <div class="cards">
     {{#each nextCard}}
       {{> card}}
     {{/each}}
-    {{#if selected_card}}
-    <div class="answer">
-      {{selected_card.answer}}
-      <input type="button" class="easy" value="Easy" />
-      <input type="button" class="medium" value="Medium" />
-      <input type="button" class="hard" value="Hard" />
-      <input type="button" class="wrong" value="Wrong" />
-    </div>
-    {{/if}}
   </div>
   <table>
     {{#each cardsInCategory}}
