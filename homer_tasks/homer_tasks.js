@@ -137,15 +137,17 @@ if (Meteor.isClient) {
   
   Template.tagInAccordion.events({
     'click button.learn': function() {
-    	console.log("clicked learn button");
-    	Session.set("learning", true);
-    	Session.set("categoryToReview", this.name);
+      console.log("clicked learn button");
+      Session.set("learning", true);
+      Session.set("categoryToReview", this.name);
+      Session.set('numCardsTotal', Cards.find({tags: this.name}).count());
+      Session.set('numCardsSeen', Cards.find({tags: this.name}).count());
     },
-  	'click button.review': function() {
+    'click button.review': function() {
   		console.log("clicked review button");
   		Session.set("learning", false);
         Session.set("categoryToReview", this.name);
-	},
+	  },
     'click button.browse': function() {
         console.log("clicked browse button");
         console.log("categoryToBrowse", Session.get("categoryToBrowse"));
