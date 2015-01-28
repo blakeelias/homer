@@ -120,6 +120,9 @@ if (Meteor.isClient) {
                    $('.card div').find(".answer").show()
                    $('.card div').find(".card-footer").show();
                    $('.card div').find(".yourAnswer").attr("readonly", "readonly");
+                   yourAnswer = $('.card div').find(".yourAnswer").val();
+                   cardReference = {'_id': $('.card').attr('id')};
+                   Meteor.call("updateYourAnswers", cardReference, yourAnswer);
 
                    // Initialize card events
                    $(".card-footer span").tooltip({
@@ -382,6 +385,21 @@ Meteor.methods({
   },
   updateCard: function (cardReference, updateObject) {
     Cards.update(cardReference, updateObject);
+  },
+  updateYourAnswers: function (cardReference, yourAnswer) {
+    card = Cards.findOne(cardReference);
+    var yourAnswers = card["yourAnswers"];
+    console.log("yourAnswers: ", yourAnswers);
+    console.log("yourAnswer: ", yourAnswer);
+    yourAnswers.push(yourAnswer);
+    console.log("yourAnswers after: ", yourAnswers);
+    delete card["yourAnswers"];
+    console.log("yourAnswers after delete", yourAnswers);
+    Cards.update(cardReference, {
+      $push: {
+        'yourAnswers': yourAnswers
+      }
+    })
   },
   createUserCard: function (cardReference, response) {
     var newCardContent = {
