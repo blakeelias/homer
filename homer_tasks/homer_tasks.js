@@ -27,13 +27,7 @@ if (Meteor.isClient) {
       if (typeof console !== 'undefined')
         console.log("You pressed the button");
     },
-    'click button.reviewAll': function() {
-      console.log("clicked review all button");
-    	Session.set("learning", false);
-    	Session.set("categoryToReview", null);
-      Session.set('numCardsSeen', 0);
-      Session.set('numCardsTotal', cardsDueToday().length);
-    },
+    'click button.reviewAll': reviewAll,
     'click input.easy':   function() { updateCurrentCard(3); },
     'click input.medium': function() { updateCurrentCard(2); },
     'click input.hard':   function() { updateCurrentCard(1); },
@@ -192,6 +186,17 @@ if (Meteor.isClient) {
 		console.log("in Meteor.startup");
 		showInputForm();
 	});
+}
+
+function reviewAll() {
+  console.log("reviewing all cards due today");
+  Session.set("learning", false);
+  Session.set("categoryToReview", null);
+  Session.set('numCardsSeen', 0);
+  Session.set('numCardsTotal', cardsDueToday().length);
+
+  // maybe?
+  // Session.set("categoryToBrowse", null);
 }
 
 function updateCurrentCard(response) {
