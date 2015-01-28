@@ -199,16 +199,22 @@ function updateCurrentCard(response) {
     answerCard(selectedCardReference, response);
 }
 
+function isCorrect(response) {
+  return Number(response) > 0;
+}
+
 function answerCard(cardReference, response, yourAnswer) {
     console.log(cardReference);
     var card = Cards.findOne(cardReference);
     console.log(card);
-    Session.set('numCardsSeen', 1 + Session.get('numCardsSeen'));
     if (card.userId == undefined) {
       console.log('creating user card');
       Meteor.call('createUserCard', card._id, response, yourAnswer);
     } else {
       updateCard(cardReference, response, yourAnswer);
+    }
+    if (isCorrect(response)) {
+      Session.set('numCardsSeen', Session.get('numCardsTotal') - cardsDueToday().length);
     }
 }
 
