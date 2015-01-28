@@ -87,11 +87,9 @@
 
 <template name="card">
   <div class="card" id="{{_id}}">
-    <!--div class="front">
-      <div class="cardText">{{question}}</div>
-    </div-->
     <div class="front">
-        <div>{{question}}</div> <!--div class="cardText">{{question}}</div-->
+        <div>{{question}}</div>
+        <input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
         <div class="answer">{{answer}}</div>
         <div class="card-footer">
             <span class="rank-number" data-html="true" data-original-title="I got this wrong<br/>(show again)" rating="0">WRONG</span>

@@ -97,7 +97,9 @@ if (Meteor.isClient) {
 
   Template.card.events({
        'click .card':   function(event, template) {
-
+		  if ($(event.target).attr('class') == 'yourAnswer') {
+		    return;
+		  }
           if ($(event.target).attr('class') == 'rank-number') {
             // TODO: store rating
             console.log("id below");
@@ -117,6 +119,7 @@ if (Meteor.isClient) {
               onEnd: function() {
                    $('.card div').find(".answer").show()
                    $('.card div').find(".card-footer").show();
+                   $('.card div').find(".yourAnswer").attr("readonly", "readonly");
 
                    // Initialize card events
                    $(".card-footer span").tooltip({
@@ -308,6 +311,14 @@ function getUserCard(parentCardId) {
 		'userId': Meteor.user()._id
 	});
 }
+
+function inputFocus(i){
+    if(i.value==i.defaultValue){ i.value=""; i.style.color="#000"; }
+}
+function inputBlur(i){
+    if(i.value==""){ i.value=i.defaultValue; i.style.color="#888"; }
+}
+
 if (Meteor.isServer) {
   Meteor.startup(function () {
       if (Cards.find().count() === 0) {
@@ -316,21 +327,24 @@ if (Meteor.isServer) {
                       "easiness": 2.5,
                       "next_scheduled": new Date(),
                       "history": [],
-                      "categories": ["math", "lecture1"]
+                      "categories": ["math", "lecture1"],
+                      "yourAnswers": []
         });
         Cards.insert({"question": "Who was the first US president?",
                       "answer": "George Washington",
                       "easiness": 2.5,
                       "next_scheduled": new Date(),
                       "history": [],
-                      "categories": ["history", "lecture1"]
+                      "categories": ["history", "lecture1"],
+                      "yourAnswers": []
         });
         Cards.insert({"question": "In what year was the Declaration of Independence signed?",
                       "answer": "1776",
                       "easiness": 2.5,
                       "next_scheduled": new Date(),
                       "history": [],
-                      "categories": ["history", "lecture2"]
+                      "categories": ["history", "lecture2"],
+                      "yourAnswers": []
         });
         // TODO don't want this, better way to display done studying
         Cards.insert({"question": "Done studying!",
