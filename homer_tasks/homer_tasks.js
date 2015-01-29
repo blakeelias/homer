@@ -222,7 +222,7 @@ Template.card.rendered = function() {
       if (Meteor.userId() != null) {
         if (cardsDueToday().length > 0 && Session.get('numCardsSeen') > 0) {
           computation.stop();
-        } else {
+        } else if (!Session.get("learning")) {
           reviewAll();
         }
       }
