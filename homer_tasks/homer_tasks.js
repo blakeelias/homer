@@ -146,7 +146,7 @@ if (Meteor.isClient) {
           } else {
             $('.card').flip({
               direction: "rl",
-              speed: 400,
+              speed: 150,
               color: "#00372B",
               onEnd: function() {
                    $('.card div').find(".answer").show()
