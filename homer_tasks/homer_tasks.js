@@ -11,6 +11,7 @@ if (Meteor.isClient) {
   Session.set("learning", false);
   Session.set("categoryToReview", null);
   Session.set("categoryToBrowse", null);
+  Session.set("isEditing", false);
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -95,6 +96,9 @@ if (Meteor.isClient) {
   	  		  {display1: "I sort of know", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 3, new Date(), newEasinessFactor(this.easiness, 3))), rating: 3, display2: 3},
   	  		  {display1: "I almost know", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 4, new Date(), newEasinessFactor(this.easiness, 4))), rating: 4, display2: 4},
   	  		  {display1: "I know it", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 5, new Date(), newEasinessFactor(this.easiness, 5))), rating: 5, display2: 5}];
+  	},
+  	isEditing: function() {
+  	  return Session.get("isEditing");
   	}
   });
   
@@ -115,9 +119,16 @@ if (Meteor.isClient) {
 
   Template.card.events({
        'click .card':   function(event, template) {
-		  if ($(event.target).attr('class') == 'yourAnswer') {
-		    return;
-		  }
+          console.log($(event.target).attr('class'));
+          notFlip = ['yourAnswer', 'editQuestion', 'editAnswer', 'btn btn-xs btn-primary edit', 'btn btn-xs btn-info edit', 'btn btn-xs btn-success save', 'btn btn-xs btn-danger cancel'];
+          for (i in notFlip) {
+            if ($(event.target).attr('class') == notFlip[i]) {
+              return;
+            }
+          }
+          if ($(event.target).attr('class') == 'edit') {
+            return;
+          }
           if ($(event.target).attr('class') == 'rank-number') {
             // TODO: store rating
             console.log("id below");
@@ -154,7 +165,23 @@ if (Meteor.isClient) {
             });
           }
            
+       },
+       'click button.edit': function(event, template) {
+          if (!Session.get("isEditing")) {
+       	    Session.set("isEditing", true);
+       	    $(event.target).attr('class', 'btn btn-xs btn-primary edit');
+       	  }
+       },
+       'click button.save': function(event, template) {
+         // SAVE CHANGES TO CARD
+         Session.set("isEditing", false);
+         $('.edit').attr('class', 'btn btn-xs btn-info edit');
+       },
+       'click button.cancel': function(event, template) {
+         Session.set("isEditing", false);
+         $('.edit').attr('class', 'btn btn-xs btn-info edit');
        }
+         
   });
   
   Template.tagInAccordion.events({
@@ -360,6 +387,7 @@ function inputBlur(i){
 if (Meteor.isServer) {
   Meteor.startup(function () {
       if (Cards.find().count() === 0) {
+        /* REMOVE?????
         Cards.insert({"question": "What is 2 + 2?",
                       "answer": "4",
                       "easiness": 2.5,
@@ -383,11 +411,9 @@ if (Meteor.isServer) {
                       "history": [],
                       "categories": ["history", "lecture2"],
                       "yourAnswers": []
-        });
+        });*/
         // TODO don't want this, better way to display done studying
-        Cards.insert({"question": "Done studying!",
-        			  "answer": "Done studying!"
-        });
+        Cards.insert({"question": "Done studying!"});
       }
   });
 

@@ -168,7 +168,7 @@ th, td {
     .card .front, .card .back {
         /* vertically aligned content */
         /* http://www.jakpsatweb.cz/css/css-vertical-center-solution.html */
-        display: table-cell;
+        /*display: table-cell;*/
         vertical-align: middle;
         width: 100%;
         position: static;
@@ -195,6 +195,12 @@ th, td {
         margin-top: 50px;
         margin-bottom: 5px;
         display: none;
+    }
+    
+    .card .buttons {
+    	margin-bottom: 65px;
+    	text-align: right;
+    	clear: both;
     }
 
     .card .card-footer  span {
