@@ -176,6 +176,7 @@ if (Meteor.isClient) {
   		console.log("clicked review button");
   		Session.set("learning", false);
         Session.set("categoryToReview", this.name);
+      updateProgressBar(0, cardsDueTodayForCategory(this.name, false).length)
 	  },
     'click button.browse': function() {
         console.log("clicked browse button");
