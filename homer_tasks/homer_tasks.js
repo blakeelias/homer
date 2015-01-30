@@ -169,17 +169,23 @@ if (Meteor.isClient) {
        'click button.edit': function(event, template) {
           if (!Session.get("isEditing")) {
        	    Session.set("isEditing", true);
-       	    $(event.target).attr('class', 'btn btn-xs btn-primary edit');
+       	    $('.edit').hide();
        	  }
        },
        'click button.save': function(event, template) {
-         // SAVE CHANGES TO CARD
+         cardReference = {'_id': $('.card').attr('id')};
+		 Meteor.call("updateCard", cardReference, {
+		   $set: {
+					'question': document.getElementById('editQuestion').value,
+					'answer': document.getElementById('editAnswer').value
+				 }
+		 });
          Session.set("isEditing", false);
-         $('.edit').attr('class', 'btn btn-xs btn-info edit');
+         $('.edit').show();
        },
        'click button.cancel': function(event, template) {
          Session.set("isEditing", false);
-         $('.edit').attr('class', 'btn btn-xs btn-info edit');
+         $('.edit').show();
        }
          
   });
@@ -446,24 +452,6 @@ Meteor.methods({
   },
   updateCard: function (cardReference, updateObject) {
     Cards.update(cardReference, updateObject);
-  },
-  updateYourAnswers: function (cardReference, yourAnswer) {
-    card = Cards.findOne(cardReference);
-    console.log(card);
-    var yourAnswers = card["yourAnswers"];
-    console.log("yourAnswers: ", yourAnswers);
-    console.log("yourAnswer: ", yourAnswer);
-    yourAnswers.push(yourAnswer);
-    console.log("yourAnswers after: ", yourAnswers);
-    delete card["yourAnswers"];
-    console.log("card after deleting yourAnswers", card);
-    console.log("yourAnswers after delete", yourAnswers);
-    Cards.update(cardReference, {
-      $push: {
-        'yourAnswers': yourAnswers
-      }
-    })
-    console.log("card after pushing yourAnswers", card);
   },
   createUserCard: function (cardReference, rating, yourAnswer) {
     var newCardContent = {

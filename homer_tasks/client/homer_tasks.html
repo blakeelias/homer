@@ -72,12 +72,15 @@
 			{{/if}}
     	</div>
     	{{#if isEditing}}
-    		<div class="front">
-    			<input type="text" class="editQuestion" id="editQuestion" value="Type the question here" style="text-align:center" onblur="if(this.value=='')this.value='Type the question here';" onfocus="if(this.value=='Type the question here')this.value='';"/>
+    		<div class="editing">
+    			<input type="text" class="editQuestion" id="editQuestion" value="{{question}}" style="text-align:center" onblur="if(this.value=='')this.value='Type the question here';" onfocus="if(this.value=='Type the question here')this.value='';"/>
         		<br>
-        		<input type="text" class="editAnswer" id="editAnswer" value="Type the answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type the answer here';" onfocus="if(this.value=='Type the answer here')this.value='';"/>
+        		<input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
+        		<br>
+        		<input type="text" class="editAnswer" id="editAnswer" value="{{answer}}" style="text-align:center" onblur="if(this.value=='')this.value='Type the answer here';" onfocus="if(this.value=='Type the answer here')this.value='';"/>
         	</div>
         {{else}}
+        	<div class="answering">
 				<div>{{question}}</div>
 				<input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
 				<div class="answer">{{answer}}</div>
@@ -86,6 +89,7 @@
 						{{> button}}
 					{{/each}}
 				</div>
+			</div>
 	    {{/if}}
     </div>
   </div>

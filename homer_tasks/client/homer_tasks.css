@@ -198,9 +198,16 @@ th, td {
     }
     
     .card .buttons {
-    	margin-bottom: 65px;
+    	/*margin-bottom: 65px;*/
     	text-align: right;
     	clear: both;
+    }
+    
+    .card .editQuestion, .card .yourAnswer, .card .editAnswer {
+    	font-size: 22px;
+        font-weight: bold;
+        line-height: 1;
+        /*width: 100%;*/
     }
 
     .card .card-footer  span {
