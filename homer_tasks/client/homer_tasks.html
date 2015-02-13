@@ -48,17 +48,25 @@
     {{/each}}
   </table>
 
-  <div id="dialog-form" title="Create new user">
-  <p class="validateTips">All form fields are required.</p>
+  <div id="dialog-form" title="Import content">
+  <p><strong>Format for questions:</strong><br><br>
+    Between question and answer: [tab] <br>
+    Between questions: [new line] <br>
+    Surround math formulas with '$$' on either side.<br><br>
+
+    <strong>Eg:</strong><br>
+    What is 2 + 2?&#09;4<br>
+    Who was the first US President?&#09;George Washington<br>
+  </p>
 
   <form>
     <fieldset>
-      <textarea name="Flashcards" id="importData" value="Type flashcards here" class="text ui-widget-content ui-corner-all"></textarea>
+      <textarea name="Flashcards" id="importData" value="Copy and paste data here (from a text editor)." class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
 
       <!-- Allow form submission with keyboard without duplicating the dialog button -->
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
 
-      <textarea name="categories" id="importCategory" value="Type categories here" class="text ui-widget-content ui-corner-all"></textarea>
+      <input name="categories" id="importCategory" value="Type category here" class="text ui-widget-content ui-corner-all" />
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
     </fieldset>
   </form>
