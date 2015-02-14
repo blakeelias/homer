@@ -6,6 +6,12 @@
 </head>
 
 <body>
+  {{#if currentUser}}
+
+  {{else}}
+    You're not logged in
+  {{/if}}
+
   {{> loginButtons}}
 
   <h1>Homer</h1>
