@@ -65,18 +65,21 @@ showQuestionForm = function() {
 
 		$(function() {
 			var questionDialog, form,
- 
-				importDataField = $( "#importData" ),
-				importCategory = $( "#importCategory" );
+ 				importCategory = $( "#importCategory" ),
+				questionField = $( "#question" ),
+				answerField = $( "#answer" );
  
 			function addUser() {
-			  var data = importDataField.val();
-			  data.split('\n').map(function (line) {
-			    var pair = line.split('\t');
-			    Meteor.call('insertCard', {'question': pair[0], 'answer': pair[1], 'easiness': 2.5, 'history':[]});
-			    card = Cards.findOne({'question': pair[0]});
-			    Cards.addTag(importCategory.val(), card);
+			  var question = questionField.val();
+			  var answer = answerField.val();
+			  Meteor.call('insertCard', {
+			  	'question': question,
+			  	'ansnwer': answer,
+			  	'easiness': 2.5,
+			  	'history': []
 			  });
+			  card = Cards.findOne({'question': question});
+			  Cards.addTag(importCategory.val(), card);
 			}
 
 			questionDialog = $( "#question-form" ).dialog({
