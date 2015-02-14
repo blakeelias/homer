@@ -13,6 +13,7 @@ if (Meteor.isClient) {
   updateProgressBar(0, 0);
   Session.set("categoryToBrowse", null);
   Session.set("isEditing", false);
+  Session.set("import", false);
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -27,6 +28,7 @@ if (Meteor.isClient) {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
         console.log("You pressed the button");
+    	Session.set("import", true);
     },
     'click button.reviewAll': reviewAll
   });
@@ -38,7 +40,14 @@ if (Meteor.isClient) {
       }).fetch();
     },
     tags: function() {
+      var importing = Session.get("import");
       tags = Meteor.tags.find().fetch();
+      tags.sort(function(a, b) {
+        var tag1 = a.name;
+        var tag2 = b.name;
+        return tag1 < tag2 ? -1 : (tag1 > tag2 ? 1 : 0);
+      });
+      Session.set("import", false);
       return tags;
     },
     cardsInCategory: function() {
