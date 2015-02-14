@@ -101,7 +101,7 @@ showQuestionForm = function() {
 				addUser();
 			});
 
-			$( "#create-question" ).button().on( "click", function() {
+			$( "#create-card" ).button().on( "click", function() {
 				questionDialog.dialog( "open" );
 			});
 		});
