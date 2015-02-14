@@ -218,6 +218,7 @@ Template.card.rendered = function() {
 	Meteor.startup(function () {
 		console.log("in Meteor.startup");
 		showInputForm();
+    showQuestionForm();
 		Tracker.autorun(function (computation) {
       if (Meteor.userId() != null) {
         if (cardsDueToday().length > 0 && Session.get('numCardsSeen') > 0) {

@@ -10,7 +10,8 @@
 
   <h1>Question list</h1>
   {{greeting}}
-  <button id="create-user">Import</button>
+  <button id="create-card">Add question</button>
+  <button id="create-user">Add bulk questions</button>
   <div class="container-fluid">
 	  <div class="row">
 		  <div class="span6 col-md-4">
@@ -59,6 +60,20 @@
     Who was the first US President?&#09;George Washington<br>
   </p>
 
+  <form>
+    <fieldset>
+      <textarea name="Flashcards" id="importData" value="Copy and paste data here (from a text editor)." class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
+
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+
+      <input name="categories" id="importCategory" value="Type category here" class="text ui-widget-content ui-corner-all" />
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+  </form>
+  </div>
+
+  <div id="question-form" title="Create question">
   <form>
     <fieldset>
       <textarea name="Flashcards" id="importData" value="Copy and paste data here (from a text editor)." class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
