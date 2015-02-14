@@ -13,8 +13,8 @@
   <button id="create-user">Import</button>
   <div class="container-fluid">
 	  <div class="row">
-		  <div class="col-md-4">
-			  <div id="accordion" style="width: 33%">
+		  <div class="span6 col-md-4">
+			  <div id="accordion">
 			  <h3>8.02</h3>
 				<div>
 				<button class="btn btn-xs btn-success reviewAll" style="float: left">Review All</button>
@@ -28,11 +28,16 @@
 				</div>
 			  </div>
 		  </div>
-		  <div class="col-md-8">
+		  <div class="span6 col-md-8">
 			  <div class="cards">
-				{{#each nextCard}}
-				  {{> card}}
-				{{/each}}
+          <div class="progress">
+            <div class="bar {{progressBarClass}}" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%; min-width: 5em">
+              <span class="sr-only">{{numCardsSeen}} / {{numCardsTotal}}</span>
+            </div>
+          </div>
+  				{{#each nextCard}}
+  				  {{> card}}
+  				{{/each}}
 			  </div>
 		  </div>
 	  </div>
@@ -43,17 +48,25 @@
     {{/each}}
   </table>
 
-  <div id="dialog-form" title="Create new user">
-  <p class="validateTips">All form fields are required.</p>
+  <div id="dialog-form" title="Import content">
+  <p><strong>Format for questions:</strong><br><br>
+    Between question and answer: [tab] <br>
+    Between questions: [new line] <br>
+    Surround math formulas with '$$' on either side.<br><br>
+
+    <strong>Eg:</strong><br>
+    What is 2 + 2?&#09;4<br>
+    Who was the first US President?&#09;George Washington<br>
+  </p>
 
   <form>
     <fieldset>
-      <textarea name="Flashcards" id="importData" value="Type flashcards here" class="text ui-widget-content ui-corner-all"></textarea>
+      <textarea name="Flashcards" id="importData" value="Copy and paste data here (from a text editor)." class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
 
       <!-- Allow form submission with keyboard without duplicating the dialog button -->
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
 
-      <textarea name="categories" id="importCategory" value="Type categories here" class="text ui-widget-content ui-corner-all"></textarea>
+      <input name="categories" id="importCategory" value="Type category here" class="text ui-widget-content ui-corner-all" />
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
     </fieldset>
   </form>
@@ -68,12 +81,15 @@
         <input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
         <div class="answer">{{answer}}</div>
         <div class="card-footer">
-            <span class="rank-number" data-html="true" data-original-title="I got this wrong<br/>(show again)" rating="0">WRONG</span>
-            <span class="rank-number" data-original-title="I barely know" rating="1">1</span>
-            <span class="rank-number" data-original-title="I know a little" rating="2">2</span>
-            <span class="rank-number" data-original-title="I sort of know" rating="3">3</span>
-            <span class="rank-number" data-original-title="I almost know" rating="4">4</span>
-            <span class="rank-number" data-original-title="I know it" rating="5">5</span>
+        	{{#each buttons}}
+        		{{> button}}
+        	{{/each}}
+            <!--span class="rank-number" data-html="true" data-original-title="I got this wrong<br/>(show again)" rating="0">WRONG</span>
+            <span class="rank-number" data-html="true" data-original-title="I barely know<br/>{{days}} days" rating="1">1</span>
+            <span class="rank-number" data-html="true" data-original-title="I know a little<br/>{{days}} days" rating="2">2</span>
+            <span class="rank-number" data-html="true" data-original-title="I sort of know<br/>{{days}} days" rating="3">3</span>
+            <span class="rank-number" data-html="true" data-original-title="I almost know<br/>{{days}} days" rating="4">4</span>
+            <span class="rank-number" data-html="true" data-original-title="I know it<br/>{{days}} days" rating="5">5</span-->
         </div>
     </div>
   </div>
@@ -106,4 +122,8 @@
       <th>{{question}}</th>
       <th>{{answer}}</th>
 	</tr>
+</template>
+
+<template name="button">
+	<span class="rank-number" data-html="true" data-original-title="{{display1}}<br/>{{days}}" rating="{{rating}}">{{display2}}</span>
 </template>

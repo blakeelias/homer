@@ -148,6 +148,11 @@ th, td {
 	text-align: left;
 }
 
+.progress {
+  width: 600px;
+  margin: auto;
+}
+
 /* CARD */
 .card {
     width: 600px;

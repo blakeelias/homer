@@ -10,7 +10,7 @@ if (Meteor.isClient) {
   
   Session.set("learning", false);
   Session.set("categoryToReview", null);
-  Session.set("categoryToBrowse", null);
+  updateProgressBar(0, 0);
 
   Template.body.greeting = function () {
     return "Click a question below to view its answer.";
@@ -20,17 +20,13 @@ if (Meteor.isClient) {
     return Cards.findOne(Session.get("selectedCard"));
   };
 
-    Template.body.events({
+  Template.body.events({
     'click input.import' : function () {
       // template data, if any, is available in 'this'
       if (typeof console !== 'undefined')
         console.log("You pressed the button");
     },
-    'click button.reviewAll': function() {
-        console.log("clicked review all button");
-    	Session.set("learning", false);
-    	Session.set("categoryToReview", null);
-    },
+    'click button.reviewAll': reviewAll
   });
 
   Template.body.helpers({
@@ -78,6 +74,18 @@ if (Meteor.isClient) {
         index = Math.floor(Math.random() * cards.length);
       }
       return [cards[index]];
+    },
+    progress: function() {
+      return Session.get('numCardsSeen') / Session.get('numCardsTotal') * 100;
+    },
+    numCardsSeen: function() {
+      return Session.get('numCardsSeen');
+    },
+    numCardsTotal: function() {
+      return Session.get('numCardsTotal');
+    },
+    progressBarClass: function() {
+      return Session.get('learning') ? 'bar-primary' : 'bar-success';
     }
   });
 
@@ -85,6 +93,32 @@ if (Meteor.isClient) {
     cardsInCategory: function(tag) {
       return Cards.find({tags:tag});
     }
+  });
+  
+  Template.card.helpers({
+  	buttons: function() {
+  	  return [{display1: "I got this wrong", days: "(show again)", rating: 0, display2: "WRONG"},
+  	  		  {display1: "I barely know", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 1, new Date(), newEasinessFactor(this.easiness, 1))), rating: 1, display2: 1},
+  	  		  {display1: "I know a little", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 2, new Date(), newEasinessFactor(this.easiness, 2))), rating: 2, display2: 2},
+  	  		  {display1: "I sort of know", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 3, new Date(), newEasinessFactor(this.easiness, 3))), rating: 3, display2: 3},
+  	  		  {display1: "I almost know", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 4, new Date(), newEasinessFactor(this.easiness, 4))), rating: 4, display2: 4},
+  	  		  {display1: "I know it", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 5, new Date(), newEasinessFactor(this.easiness, 5))), rating: 5, display2: 5}];
+  	}
+  });
+  
+  Template.button.helpers({
+  	display1: function() {
+  	  return this.display1;
+  	},
+  	days: function() {
+  	  return this.days;
+  	},
+  	rating: function() {
+  	  return this.rating;
+  	},
+  	display2: function() {
+  	  return this.display2;
+  	}
   });
 
   Template.card.events({
@@ -104,10 +138,15 @@ if (Meteor.isClient) {
             console.log(cardReference);
             yourAnswer = $('.card div').find(".yourAnswer").val();
             answerCard(cardReference, response, yourAnswer);
+            
+            $('.card div').find(".answer").hide()
+            $('.card div').find(".card-footer").hide();
+            $('.card div').find(".yourAnswer").attr("readonly", false);
+            
           } else {
             $('.card').flip({
               direction: "rl",
-              speed: 400,
+              speed: 150,
               color: "#00372B",
               onEnd: function() {
                    $('.card div').find(".answer").show()
@@ -128,15 +167,16 @@ if (Meteor.isClient) {
   
   Template.tagInAccordion.events({
     'click button.learn': function() {
-    	console.log("clicked learn button");
-    	Session.set("learning", true);
-    	Session.set("categoryToReview", this.name);
+      console.log("clicked learn button");
+      Session.set("learning", true);
+      Session.set("categoryToReview", this.name);
+      updateProgressBarLearning();
     },
-  	'click button.review': function() {
+    'click button.review': function() {
   		console.log("clicked review button");
   		Session.set("learning", false);
         Session.set("categoryToReview", this.name);
-	},
+	  },
     'click button.browse': function() {
         console.log("clicked browse button");
         console.log("categoryToBrowse", Session.get("categoryToBrowse"));
@@ -178,12 +218,35 @@ Template.card.rendered = function() {
 	Meteor.startup(function () {
 		console.log("in Meteor.startup");
 		showInputForm();
+		Tracker.autorun(function (computation) {
+      if (Meteor.userId() != null) {
+        if (cardsDueToday().length > 0 && Session.get('numCardsSeen') > 0) {
+          computation.stop();
+        } else if (!Session.get("learning")) {
+          reviewAll();
+        }
+      }
+    });
 	});
+}
+
+function reviewAll() {
+  console.log("reviewing all cards due today");
+  Session.set("learning", false);
+  Session.set("categoryToReview", null);
+  updateProgressBar(0, cardsDueToday().length);
+
+  // maybe?
+  // Session.set("categoryToBrowse", null);
 }
 
 function updateCurrentCard(response) {
     var selectedCardReference = Session.get('selectedCard');
     answerCard(selectedCardReference, response);
+}
+
+function isCorrect(response) {
+  return Number(response) > 0;
 }
 
 function answerCard(cardReference, response, yourAnswer) {
@@ -196,27 +259,18 @@ function answerCard(cardReference, response, yourAnswer) {
     } else {
       updateCard(cardReference, response, yourAnswer);
     }
+    if (isCorrect(response) || Session.get('learning')) {
+      incrementProgressBar();
+      //updateProgressBarReviewing(Session.get('numCardsTotal') - cardsDueToday().length);
+    }
 }
 
 function updateCard(cardReference, response, yourAnswer) {
   var nowDate = new Date();
   var card = Cards.findOne(cardReference);
-	var reviewNumber = card.history.length;
 	storeCardSnapshot(cardReference);
 	var easiness = newEasinessFactor(card.easiness, response);
-	if (response == 0) {
-		var interval = 0;
-	} else {
-		if (reviewNumber == 0) {
-			var interval = 1;
-		} else if (reviewNumber == 1) {
-			var interval = 6;
-		} else {
-			var daysSinceLastSeen = (nowDate - card.last_seen) / (1000 * 60 * 60 * 24);
-			console.log('days since last seen: ' + daysSinceLastSeen);
-			var interval = easiness * daysSinceLastSeen;
-		}
-	}
+	var interval = computeInterval(card.consecutiveCorrect, card.last_seen, response, nowDate, easiness);
 	var nextReview = moment(nowDate);
 	console.log('interval days: ' + interval);
 	nextReview.add(interval, 'days');
@@ -227,9 +281,29 @@ function updateCard(cardReference, response, yourAnswer) {
 					'last_response': response,
 					'easiness': easiness,
 					'next_scheduled': nextReview._d,
-					'yourAnswer': yourAnswer
+					'yourAnswer': yourAnswer,
+					'consecutiveCorrect': (response > 0) ? (card.consecutiveCorrect + 1) : 0
 			}
 	});
+}
+
+function computeInterval(consecutiveCorrect, last_seen, response, nowDate, easiness) {
+	if (response == 0) {
+		return 0;
+	} else {
+		if (consecutiveCorrect == 0 || consecutiveCorrect == null) {
+			return 1;
+		} else if (consecutiveCorrect == 1) {
+			return 6;
+		} else {
+		    console.log("nowDate: ", nowDate);
+		    console.log("easiness: ", easiness);
+		    console.log("card.last_seen: ", last_seen)
+			var daysSinceLastSeen = (nowDate - last_seen) / (1000 * 60 * 60 * 24);
+			console.log('days since last seen: ' + daysSinceLastSeen);
+			return easiness * daysSinceLastSeen;
+		}
+	}
 }
 
 function storeCardSnapshot(cardReference) {
@@ -258,7 +332,7 @@ function cardCategories(query) {
 }
 
 function cardsDueToday() {
-	cards = Cards.find({userId: Meteor.user()._id}).fetch();
+	cards = Cards.find({userId: Meteor.userId()}).fetch();
 	dueCards = [];
 	for (card in cards) {
 		if (cards[card]["next_scheduled"] < new Date()) {
@@ -317,6 +391,28 @@ function inputFocus(i){
 }
 function inputBlur(i){
     if(i.value==""){ i.value=i.defaultValue; i.style.color="#888"; }
+}
+
+function incrementProgressBar() {
+  Session.set('numCardsSeen', Session.get('numCardsSeen') + 1)
+}
+
+function updateProgressBarLearning() {
+  updateProgressBar(
+    Cards.find({
+      tags: Session.get('categoryToReview'),
+      userId: Meteor.userId()
+    }).count(),
+    Cards.find({
+      tags: Session.get('categoryToReview'),
+      userId: { $exists: false }
+    }).count()
+  );
+}
+
+function updateProgressBar(numSeen, numTotal) {
+  Session.set('numCardsSeen', numSeen);
+  Session.set('numCardsTotal', numTotal);
 }
 
 if (Meteor.isServer) {
@@ -407,7 +503,9 @@ Meteor.methods({
       parentCard: cardReference,
       easiness: 2.5,
       next_scheduled: new Date(),
-      history: []
+      history: [],
+      tags: Cards.findOne(cardReference).tags,
+      consecutiveCorrect: 0
     };
     Cards.insert(newCardContent, function(err, id) {
       updateCard(id, rating, yourAnswer);
