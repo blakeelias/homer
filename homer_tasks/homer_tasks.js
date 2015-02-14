@@ -99,7 +99,7 @@ if (Meteor.isClient) {
   
   Template.card.helpers({
   	buttons: function() {
-  	  return [{display1: "I got this wrong", days: "(show again)", rating: 0, display2: "WRONG"},
+  	  return [{display1: "I got this wrong", days: "(show again)", rating: 0, display2: "0"},
   	  		  {display1: "I barely know", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 1, new Date(), newEasinessFactor(this.easiness, 1))), rating: 1, display2: 1},
   	  		  {display1: "I know a little", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 2, new Date(), newEasinessFactor(this.easiness, 2))), rating: 2, display2: 2},
   	  		  {display1: "I sort of know", days: Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 3, new Date(), newEasinessFactor(this.easiness, 3))), rating: 3, display2: 3},

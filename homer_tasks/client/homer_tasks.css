@@ -227,21 +227,21 @@ th, td {
     }
 
     .card .card-footer  span.rank-number:nth-of-type(2) {
-        background-color: #002A00;
+        background-color: #007F00;
     }
 
     .card .card-footer  span.rank-number:nth-of-type(3) {
-        background-color: #005400;
+        background-color: #009F00;
     }
 
     .card .card-footer  span.rank-number:nth-of-type(4) {
-        background-color: #007E00;
+        background-color: #00BF00;
     }
 
     .card .card-footer  span.rank-number:nth-of-type(5) {
-        background-color: #00A800;
+        background-color: #00DF00;
     }
 
     .card .card-footer  span.rank-number:nth-of-type(6) {
-        background-color: #00D200;
+        background-color: #00FF00;
     }
