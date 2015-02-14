@@ -74,7 +74,7 @@ showQuestionForm = function() {
 			  var answer = answerField.val();
 			  Meteor.call('insertCard', {
 			  	'question': question,
-			  	'ansnwer': answer,
+			  	'answer': answer,
 			  	'easiness': 2.5,
 			  	'history': []
 			  });
