@@ -117,9 +117,13 @@
         {{else}}
         	<div class="answering">
 				<div>{{question}}</div>
-				<input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
-				<div class="answer">{{answer}}</div>
+				Your answer: <input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
+				<br>
+				<div class="answer">Correct answer: {{answer}}</div>
 				<div class="card-footer">
+					Grade yourself:
+					<br>
+					<br>
 					{{#each buttons}}
 						{{> button}}
 					{{/each}}
