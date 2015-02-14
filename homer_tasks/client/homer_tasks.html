@@ -76,12 +76,19 @@
   <div id="question-form" title="Create question">
   <form>
     <fieldset>
-      <textarea name="Flashcards" id="importData" value="Copy and paste data here (from a text editor)." class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
+      Type the question and answer you'd like to be quizzed on.<br><br>
+      <textarea name="question" id="question" value="Type question here" class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
+      <textarea name="answer" id="question" value="Type answer here" class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
+      <input name="categories" id="importCategory" value="Type category here" class="text ui-widget-content ui-corner-all" />
+      <br><br><br><br><br>
+
+      Surround math formulas with <pre style="display: inline">$$</pre> on either side in order to render with \(\LaTeX\). For example:<br><br>
+
+      <pre>$$ \vec{a} \cdot \vec{b} = \sum_{i=0}^n a_i b_i $$</pre>
+      will produce:
+      $$ \vec{a} \cdot \vec{b} = \sum_{i=0}^n a_i b_i $$
 
       <!-- Allow form submission with keyboard without duplicating the dialog button -->
-      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
-
-      <input name="categories" id="importCategory" value="Type category here" class="text ui-widget-content ui-corner-all" />
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
     </fieldset>
   </form>
