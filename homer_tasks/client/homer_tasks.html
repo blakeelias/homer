@@ -6,16 +6,30 @@
 </head>
 
 <body>
-  {{> loginButtons}}
+  {{#if currentUser}}
+    {{> loginButtons}}
+  {{else}}
+    <div style="position: absolute; width: 100%; height: 100%; z-index: 1; text-align: center; padding-top: auto; padding-bottom: auto; background-color: rgba(200, 200, 200, 0.5)">
+      <div style="background-color: rgba(170, 170, 170, 1); width: 500px; height: 150px; margin: auto; padding: 50px">
+        <h1>Welcome to Homer</h1>
+        <h2>Remember everything you learn</h2>
+        <p>Why don't you log in or make an account?</p>
+        {{> loginButtons}}
+      </div>
+    </div>
+  {{/if}}
 
-  <h1>Question list</h1>
+  
+
+  <h1>Homer</h1>
   {{greeting}}
-  <button id="create-user">Import</button>
+  <button id="create-card">Add question</button>
+  <button id="create-user">Add bulk questions</button>
   <div class="container-fluid">
 	  <div class="row">
 		  <div class="span6 col-md-4">
 			  <div id="accordion">
-			  <h3>8.02</h3>
+			  <h3>Card Categories</h3>
 				<div>
 				<button class="btn btn-xs btn-success reviewAll" style="float: left">Review All</button>
 				<br>
@@ -48,17 +62,46 @@
     {{/each}}
   </table>
 
-  <div id="dialog-form" title="Create new user">
-  <p class="validateTips">All form fields are required.</p>
+  <div id="dialog-form" title="Import content">
+  <p><strong>Format for questions:</strong><br><br>
+    Between question and answer: [tab] <br>
+    Between questions: [new line] <br>
+    Surround math formulas with '$$' on either side.<br><br>
+
+    <strong>Eg:</strong><br>
+    What is 2 + 2?&#09;4<br>
+    Who was the first US President?&#09;George Washington<br>
+  </p>
 
   <form>
     <fieldset>
-      <textarea name="Flashcards" id="importData" value="Type flashcards here" class="text ui-widget-content ui-corner-all"></textarea>
+      <textarea name="Flashcards" id="importData" value="Copy and paste data here (from a text editor)." class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
 
       <!-- Allow form submission with keyboard without duplicating the dialog button -->
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
 
-      <textarea name="categories" id="importCategory" value="Type categories here" class="text ui-widget-content ui-corner-all"></textarea>
+      <input name="categories" id="importCategory" value="Type category here" class="text ui-widget-content ui-corner-all" />
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+  </form>
+  </div>
+
+  <div id="question-form" title="Create question">
+  <form>
+    <fieldset>
+      Type the question and answer you'd like to be quizzed on.<br><br>
+      <textarea name="question" id="question" value="Type question here" class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
+      <textarea name="answer" id="answer" value="Type answer here" class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
+      <input name="categories" id="importCategory" value="Type category here" class="text ui-widget-content ui-corner-all" />
+      <br><br><br><br><br>
+
+      Surround math formulas with <pre style="display: inline">$$</pre> on either side in order to render with \(\LaTeX\). For example:<br><br>
+
+      <pre>$$ \vec{a} \cdot \vec{b} = \sum_{i=0}^n a_i b_i $$</pre>
+      will produce:
+      $$ \vec{a} \cdot \vec{b} = \sum_{i=0}^n a_i b_i $$
+
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->
       <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
     </fieldset>
   </form>
@@ -69,20 +112,37 @@
 <template name="card">
   <div class="card" id="{{_id}}">
     <div class="front">
-        <div>{{question}}</div>
-        <input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
-        <div class="answer">{{answer}}</div>
-        <div class="card-footer">
-        	{{#each buttons}}
-        		{{> button}}
-        	{{/each}}
-            <!--span class="rank-number" data-html="true" data-original-title="I got this wrong<br/>(show again)" rating="0">WRONG</span>
-            <span class="rank-number" data-html="true" data-original-title="I barely know<br/>{{days}} days" rating="1">1</span>
-            <span class="rank-number" data-html="true" data-original-title="I know a little<br/>{{days}} days" rating="2">2</span>
-            <span class="rank-number" data-html="true" data-original-title="I sort of know<br/>{{days}} days" rating="3">3</span>
-            <span class="rank-number" data-html="true" data-original-title="I almost know<br/>{{days}} days" rating="4">4</span>
-            <span class="rank-number" data-html="true" data-original-title="I know it<br/>{{days}} days" rating="5">5</span-->
-        </div>
+    	<div class="buttons">
+			<button class="btn btn-xs btn-info edit">Edit</button>
+			{{#if isEditing}}
+				<button class="btn btn-xs btn-success save">Save</button>
+				<button class="btn btn-xs btn-danger cancel">Cancel</button>
+			{{/if}}
+    	</div>
+    	{{#if isEditing}}
+    		<div class="editing">
+    			<input type="text" class="editQuestion" id="editQuestion" value="{{question}}" style="text-align:center" onblur="if(this.value=='')this.value='Type the question here';" onfocus="if(this.value=='Type the question here')this.value='';"/>
+        		<br>
+        		<input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
+        		<br>
+        		<input type="text" class="editAnswer" id="editAnswer" value="{{answer}}" style="text-align:center" onblur="if(this.value=='')this.value='Type the answer here';" onfocus="if(this.value=='Type the answer here')this.value='';"/>
+        	</div>
+        {{else}}
+        	<div class="answering">
+				<div>{{question}}</div>
+				Your answer: <input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
+				<br>
+				<div class="answer">Correct answer: {{answer}}</div>
+				<div class="card-footer">
+					Grade yourself:
+					<br>
+					<br>
+					{{#each buttons}}
+						{{> button}}
+					{{/each}}
+				</div>
+			</div>
+	    {{/if}}
     </div>
   </div>
 </template>
