@@ -63,18 +63,17 @@
   </table>
 
   <div id="dialog-form" title="Import content">
-  <p><strong>Format for questions:</strong><br><br>
-    Between question and answer: [tab] <br>
-    Between questions: [new line] <br>
-    Surround math formulas with '$$' on either side.<br><br>
-
-    <strong>Eg:</strong><br>
-    What is 2 + 2?&#09;4<br>
-    Who was the first US President?&#09;George Washington<br>
-  </p>
-
   <form>
     <fieldset>
+      <p><strong>Format for questions:</strong><br><br>
+	Between question and answer: <input id="pairDelimiterField" value="%09"> <br>
+	Between questions: <input id="lineDelimiterField" value="%0A"> <br>
+	Surround math formulas with '$$' on either side.<br><br>
+
+	<strong>Eg:</strong><br>
+	What is 2 + 2?&#09;4<br>
+	Who was the first US President?&#09;George Washington<br>
+      </p>
       <textarea name="Flashcards" id="importData" value="Copy and paste data here (from a text editor)." class="text ui-widget-content ui-corner-all" style="width: 100%"></textarea>
 
       <!-- Allow form submission with keyboard without duplicating the dialog button -->
