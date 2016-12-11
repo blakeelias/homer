@@ -7,7 +7,7 @@ if (Meteor.isClient) {
   Meteor.subscribe("cards");
   Meteor.subscribe("categories");
   Meteor.subscribe("tags");
-  
+
   Session.set("learning", false);
   Session.set("categoryToReview", null);
   updateProgressBar(0, 0);
@@ -16,7 +16,7 @@ if (Meteor.isClient) {
   Session.set("import", false);
 
   Template.body.greeting = function () {
-    return "Click a question below to view its answer.";
+    return "";
   };
 
   Template.body.selected_card = function () {
@@ -79,6 +79,8 @@ if (Meteor.isClient) {
         console.log("No cards left");
         // TODO better way to display done studying
         return [Cards.findOne({"question": "Done studying!"})];
+        Session.set("done", true);
+        // return [];
       }
       var index = 0;
       if (!learning) {
@@ -105,7 +107,7 @@ if (Meteor.isClient) {
       return Cards.find({tags:tag});
     }
   });
-  
+
   Template.card.helpers({
   	buttons: function() {
   	  return [{display1: "I got this wrong", days: "(show again)", rating: 0, display2: "0"},
@@ -117,9 +119,15 @@ if (Meteor.isClient) {
   	},
   	isEditing: function() {
   	  return Session.get("isEditing");
-  	}
+  	},
+    isDoneCard: function() {
+      return this.question == "Done studying!";
+    },
+    done: function() {
+      return Session.get('numCardsSeen') == Session.get('numCardsTotal');
+    }
   });
-  
+
   Template.button.helpers({
   	display1: function() {
   	  return this.display1;
@@ -159,11 +167,11 @@ if (Meteor.isClient) {
             console.log(cardReference);
             yourAnswer = $('.card div').find(".yourAnswer").val();
             answerCard(cardReference, response, yourAnswer);
-            
+
             $('.card div').find(".answer").hide()
             $('.card div').find(".card-footer").hide();
             $('.card div').find(".yourAnswer").attr("readonly", false);
-            
+
           } else {
             $('.card').flip({
               direction: "rl",
@@ -182,7 +190,7 @@ if (Meteor.isClient) {
                }
             });
           }
-           
+
        },
        'click button.edit': function(event, template) {
           if (!Session.get("isEditing")) {
@@ -205,9 +213,9 @@ if (Meteor.isClient) {
          Session.set("isEditing", false);
          $('.edit').show();
        }
-         
+
   });
-  
+
   Template.tagInAccordion.events({
     'click button.learn': function() {
       console.log("clicked learn button");

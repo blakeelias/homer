@@ -19,7 +19,7 @@
     </div>
   {{/if}}
 
-  
+
 
   <h1>Homer</h1>
   {{greeting}}
@@ -110,41 +110,47 @@
 </body>
 
 <template name="card">
-  <div class="card" id="{{_id}}">
-    <div class="front">
-    	<div class="buttons">
-			<button class="btn btn-xs btn-info edit">Edit</button>
-			{{#if isEditing}}
-				<button class="btn btn-xs btn-success save">Save</button>
-				<button class="btn btn-xs btn-danger cancel">Cancel</button>
-			{{/if}}
-    	</div>
-    	{{#if isEditing}}
-    		<div class="editing">
-    			<input type="text" class="editQuestion" id="editQuestion" value="{{question}}" style="text-align:center" onblur="if(this.value=='')this.value='Type the question here';" onfocus="if(this.value=='Type the question here')this.value='';"/>
-        		<br>
-        		<input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
-        		<br>
-        		<input type="text" class="editAnswer" id="editAnswer" value="{{answer}}" style="text-align:center" onblur="if(this.value=='')this.value='Type the answer here';" onfocus="if(this.value=='Type the answer here')this.value='';"/>
-        	</div>
-        {{else}}
-        	<div class="answering">
-				<div>{{question}}</div>
-				Your answer: <input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
-				<br>
-				<div class="answer">Correct answer: {{answer}}</div>
-				<div class="card-footer">
-					Grade yourself:
-					<br>
-					<br>
-					{{#each buttons}}
-						{{> button}}
-					{{/each}}
-				</div>
-			</div>
-	    {{/if}}
+  {{#if done}}
+    <div class="card">
+      Done!
     </div>
-  </div>
+  {{else}}
+    <div class="card" id="{{_id}}">
+      <div class="front">
+      	<div class="buttons">
+  			<button class="btn btn-xs btn-info edit">Edit</button>
+  			{{#if isEditing}}
+  				<button class="btn btn-xs btn-success save">Save</button>
+  				<button class="btn btn-xs btn-danger cancel">Cancel</button>
+  			{{/if}}
+      	</div>
+      	{{#if isEditing}}
+      		<div class="editing">
+      			<input type="text" class="editQuestion" id="editQuestion" value="{{question}}" style="text-align:center" onblur="if(this.value=='')this.value='Type the question here';" onfocus="if(this.value=='Type the question here')this.value='';"/>
+          		<br>
+          		<input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
+          		<br>
+          		<input type="text" class="editAnswer" id="editAnswer" value="{{answer}}" style="text-align:center" onblur="if(this.value=='')this.value='Type the answer here';" onfocus="if(this.value=='Type the answer here')this.value='';"/>
+          	</div>
+          {{else}}
+          	<div class="answering">
+  				<div>{{question}}</div>
+  				Your answer: <input type="text" class="yourAnswer" id="yourAnswer" value="Type your answer here" style="text-align:center" onblur="if(this.value=='')this.value='Type your answer here';" onfocus="if(this.value=='Type your answer here')this.value='';" onkeydown="if (event.keyCode == 13) {$('.card').click()}"/>
+  				<br>
+  				<div class="answer">Correct answer: {{answer}}</div>
+  				<div class="card-footer">
+  					Grade yourself:
+  					<br>
+  					<br>
+  					{{#each buttons}}
+  						{{> button}}
+  					{{/each}}
+  				</div>
+  			</div>
+  	    {{/if}}
+      </div>
+    </div>
+  {{/if}}
 </template>
 
 <template name="tagInAccordion">
