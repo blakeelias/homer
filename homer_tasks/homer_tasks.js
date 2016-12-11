@@ -144,7 +144,7 @@ if (Meteor.isClient) {
   });
 
   Template.card.events({
-       'click .card':   function(event, template) {
+       'click .card.clickable':   function(event, template) {
           console.log($(event.target).attr('class'));
           notFlip = ['yourAnswer', 'editQuestion', 'editAnswer', 'btn btn-xs btn-primary edit', 'btn btn-xs btn-info edit', 'btn btn-xs btn-success save', 'btn btn-xs btn-danger cancel'];
           for (i in notFlip) {
