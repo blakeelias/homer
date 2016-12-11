@@ -57,6 +57,9 @@
 	  </div>
   </div>
   <table>
+    {{#if cardBrowsing}}
+      <tr><th>Question</th><th>Answer</th></tr>
+    {{/if}}
     {{#each cardsInCategory}}
       {{> cardBrowse}}
     {{/each}}
@@ -65,7 +68,7 @@
   <div id="dialog-form" title="Import content">
   <form>
     <fieldset>
-      <p><strong>Format for questions:</strong><br><br>
+      <p><strong>Format for questions:</strong><br>(%09 for tab, %0A for new-line)<br>
 	Between question and answer: <input id="pairDelimiterField" value="%09"> <br>
 	Between questions: <input id="lineDelimiterField" value="%0A"> <br>
 	Surround math formulas with '$$' on either side.<br><br>
@@ -176,8 +179,8 @@
 
 <template name="cardBrowse">
     <tr>
-      <th>{{question}}</th>
-      <th>{{answer}}</th>
+      <td>{{question}}</td>
+      <td>{{answer}}</td>
 	</tr>
 </template>
 

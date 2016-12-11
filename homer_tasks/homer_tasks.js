@@ -99,6 +99,9 @@ if (Meteor.isClient) {
     },
     progressBarClass: function() {
       return Session.get('learning') ? 'bar-primary' : 'bar-success';
+    },
+    cardBrowsing: function() {
+      return Session.get('categoryToBrowse') != null;
     }
   });
 
