@@ -149,7 +149,7 @@ if (Meteor.isClient) {
   Template.card.events({
        'click .card.clickable':   function(event, template) {
           console.log($(event.target).attr('class'));
-          notFlip = ['yourAnswer', 'editQuestion', 'editAnswer', 'btn btn-xs btn-primary edit', 'btn btn-xs btn-info edit', 'btn btn-xs btn-success save', 'btn btn-xs btn-danger cancel'];
+          notFlip = ['yourAnswer', 'editQuestion', 'editAnswer', 'btn btn-xs btn-primary edit', 'btn btn-xs btn-info edit', 'btn btn-xs btn-success save', 'btn btn-xs btn-danger cancel', 'vote'];
           for (i in notFlip) {
             if ($(event.target).attr('class') == notFlip[i]) {
               return;
@@ -203,19 +203,33 @@ if (Meteor.isClient) {
        },
        'click button.save': function(event, template) {
          cardReference = {'_id': $('.card').attr('id')};
-		 Meteor.call("updateCard", cardReference, {
-		   $set: {
-					'question': document.getElementById('editQuestion').value,
-					'answer': document.getElementById('editAnswer').value
-				 }
-		 });
+    		 Meteor.call("updateCard", cardReference, {
+    		   $set: {
+    					'question': document.getElementById('editQuestion').value,
+    					'answer': document.getElementById('editAnswer').value
+    				 }
+    		 });
          Session.set("isEditing", false);
          $('.edit').show();
        },
        'click button.cancel': function(event, template) {
          Session.set("isEditing", false);
          $('.edit').show();
-       }
+       },
+       'click button.vote': function(event, template) {
+          var change = {};
+          if (event.target.id === "voteQuestionUp") {
+            change = {'upvotes': 1};
+          } else if (event.target.id === "voteQuestionDown") {
+            change = {'downvotes': 1};
+          }
+          var cardReference = {'_id': $('.card').attr('id')};
+          var childCard = Cards.findOne(cardReference);
+          var masterCard = Cards.findOne({'_id': childCard.parentCard});
+          Meteor.call("updateCard", masterCard, {
+            $inc: change
+         });
+       },
 
   });
 
