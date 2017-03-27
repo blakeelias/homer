@@ -34,9 +34,9 @@
 				<button class="btn btn-xs btn-success reviewAll" style="float: left">Review All</button>
 				<br>
 				<br>
-				{{#each tags}}
+				{{#each categories}}
 				  <div class="category">
-				  {{> tagInAccordion}}
+				  {{> categoryInAccordion}}
 				  </div>
 				{{/each}}
 				</div>
@@ -159,14 +159,14 @@
   {{/if}}
 </template>
 
-<template name="tagInAccordion">
+<template name="categoryInAccordion">
     {{name}}
     <button class="btn btn-xs btn-primary learn" style="float: right">Learn</button>
     <button class="btn btn-xs btn-success review" style="float: right">Review</button>
     <button class="btn btn-xs btn-default browse" style="float: right">Browse</button>
 </template>
 
-<template name="tag">
+<template name="category">
   <h3>{{name}}</h3>
   <div>
   {{#each cardsInCategory name}}

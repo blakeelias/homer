@@ -1,12 +1,12 @@
 Cards = new Mongo.Collection("cards");
 Categories = new Mongo.Collection("categories");
-Tags.TagsMixin(Cards);
+// Tags = new Mongo.Collection("tags");
 
 if (Meteor.isClient) {
 
   Meteor.subscribe("cards");
   Meteor.subscribe("categories");
-  Meteor.subscribe("tags");
+  // Meteor.subscribe("tags");
 
   Session.set("learning", false);
   Session.set("categoryToReview", null);
@@ -39,16 +39,16 @@ if (Meteor.isClient) {
         userId: Meteor.user()._id
       }).fetch();
     },
-    tags: function() {
+    categories: function() {
       var importing = Session.get("import");
-      tags = Meteor.tags.find().fetch();
-      tags.sort(function(a, b) {
-        var tag1 = a.name;
-        var tag2 = b.name;
-        return tag1 < tag2 ? -1 : (tag1 > tag2 ? 1 : 0);
+      var categories = Categories.find().fetch();
+      categories.sort(function(a, b) {
+        var category1 = a.name;
+        var category2 = b.name;
+        return category1 < category2 ? -1 : (category1 > category2 ? 1 : 0);
       });
       Session.set("import", false);
-      return tags;
+      return categories;
     },
     cardsInCategory: function() {
     	categoryToBrowse = Session.get("categoryToBrowse");
@@ -56,7 +56,7 @@ if (Meteor.isClient) {
     	if (categoryToBrowse == null) {
           return
         }
-        return Cards.find({tags: categoryToBrowse}).fetch();
+        return Cards.find({categories: categoryToBrowse}).fetch();
     },
     nextCard: function() {
       var cards = [];
@@ -105,9 +105,9 @@ if (Meteor.isClient) {
     }
   });
 
-  Template.tag.helpers({
-    cardsInCategory: function(tag) {
-      return Cards.find({tags:tag});
+  Template.category.helpers({
+    cardsInCategory: function(category) {
+      return Cards.find({categories: category});
     }
   });
 
@@ -233,7 +233,7 @@ if (Meteor.isClient) {
 
   });
 
-  Template.tagInAccordion.events({
+  Template.categoryInAccordion.events({
     'click button.learn': function() {
       console.log("clicked learn button");
       Session.set("learning", true);
@@ -413,7 +413,7 @@ function cardsDueToday() {
 }
 
 function cardsDueTodayForCategory(category, learning) {
-	cards = Cards.find({tags: category}).fetch();
+	cards = Cards.find({categories: category}).fetch();
 	dueCards = [];
 	if (learning) {
 	  for (i in cards) {
@@ -426,7 +426,7 @@ function cardsDueTodayForCategory(category, learning) {
 	  }
   } else {
     var userCards = Cards.find({
-      tags: category,
+      categories: category,
       userId: Meteor.user()._id
     }).fetch();
 	  for (i in userCards) {
@@ -470,11 +470,11 @@ function incrementProgressBar() {
 function updateProgressBarLearning() {
   updateProgressBar(
     Cards.find({
-      tags: Session.get('categoryToReview'),
+      categories: Session.get('categoryToReview'),
       userId: Meteor.userId()
     }).count(),
     Cards.find({
-      tags: Session.get('categoryToReview'),
+      categories: Session.get('categoryToReview'),
       userId: { $exists: false }
     }).count()
   );
@@ -518,20 +518,11 @@ if (Meteor.isServer) {
       }
   });
 
-  Cards.allowTags(function (userId) {
-    // only allow if user is logged in
-    //return !!userId;
-    return true;
-  });
-
   Meteor.publish("cards", function () {
     return Cards.find();
   });
   Meteor.publish("categories", function () {
     return Categories.find();
-  });
-  Meteor.publish("tags", function () {
-    return Meteor.tags.find();
   });
 }
 
@@ -555,7 +546,7 @@ Meteor.methods({
       easiness: 2.5,
       next_scheduled: new Date(),
       history: [],
-      tags: Cards.findOne(cardReference).tags,
+      categories: Cards.findOne(cardReference).categories,
       consecutiveCorrect: 0
     };
     Cards.insert(newCardContent, function(err, id) {

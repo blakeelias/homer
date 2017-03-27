@@ -1,7 +1,7 @@
 showInputForm = function() {
   console.log("in showInputForm");
 
-		var numTagGroups = 0;
+		var numCategoryGroups = 0;
 
 		$( "#import" ).button().on( "click", function() {
 				dialog.dialog( "open" );
@@ -21,9 +21,7 @@ showInputForm = function() {
   			console.log(pairDelimiter);
 			  data.split(lineDelimiter).map(function (line) {
 			    var pair = line.split(pairDelimiter);
-			    Meteor.call('insertCard', {'question': pair[0], 'answer': pair[1], 'easiness': 2.5, 'history':[]});
-			    card = Cards.findOne({'question': pair[0]});
-			    Cards.addTag(importCategory.val(), card);
+			    Meteor.call('insertCard', {'question': pair[0], 'answer': pair[1], 'easiness': 2.5, 'history':[], 'category': importCategory.val()});
 			  });
 			}
 
@@ -80,10 +78,9 @@ showQuestionForm = function() {
 			  	'question': question,
 			  	'answer': answer,
 			  	'easiness': 2.5,
-			  	'history': []
+			  	'history': [],
+				'categories': [importCategory.val()]
 			  });
-			  card = Cards.findOne({'question': question});
-			  Cards.addTag(importCategory.val(), card);
 			}
 
 			questionDialog = $( "#question-form" ).dialog({
