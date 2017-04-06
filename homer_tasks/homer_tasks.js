@@ -224,9 +224,12 @@ if (Meteor.isClient) {
             change = {'downvotes': 1};
           }
           var cardReference = {'_id': $('.card').attr('id')};
-          var childCard = Cards.findOne(cardReference);
-          var masterCard = Cards.findOne({'_id': childCard.parentCard});
-          Meteor.call("updateCard", masterCard, {
+          var card = Cards.findOne(cardReference);
+          if (card.parentCard) {
+            // is a user card
+            card = Cards.findOne({'_id': card.parentCard});
+          }
+          Meteor.call("updateCard", card, {
             $inc: change
          });
        },
