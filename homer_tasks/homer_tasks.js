@@ -86,6 +86,9 @@ if (Meteor.isClient) {
       if (!learning) {
         index = Math.floor(Math.random() * cards.length);
       }
+      cards.sort(function (a,b) {
+        return pop_score(b) - pop_score(a);
+      });
       return [cards[index]];
     },
     progress: function() {
@@ -224,13 +227,15 @@ if (Meteor.isClient) {
             change = {'downvotes': 1};
           }
           var cardReference = {'_id': $('.card').attr('id')};
-          var childCard = Cards.findOne(cardReference);
-          var masterCard = Cards.findOne({'_id': childCard.parentCard});
-          Meteor.call("updateCard", masterCard, {
+          var card = Cards.findOne(cardReference);
+          if (card.parentCard) {
+            // is a user card
+            card = Cards.findOne({'_id': card.parentCard});
+          }
+          Meteor.call("updateCard", card, {
             $inc: change
          });
        },
-
   });
 
   Template.categoryInAccordion.events({
@@ -266,11 +271,11 @@ if (Meteor.isClient) {
           $('.browse').attr('class', 'btn btn-xs btn-default browse');
         }
     }
-});
+  });
 
-Template.card.rendered = function() {
-	MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-}
+  Template.card.rendered = function() {
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+  }
 
   Template.body.rendered = function() {
     $( "#accordion" ).accordion({
@@ -298,6 +303,13 @@ Template.card.rendered = function() {
       }
     });
 	});
+}
+
+function pop_score(card) {
+  // hidden votes: 5 up 5 down
+  var upvotes = (card.upvotes === undefined) ? 0 : card.upvotes;
+  var downvotes = (card.downvotes === undefined) ? 0 : card.downvotes;
+  return (upvotes + 5) / (upvotes + downvotes + 10);
 }
 
 function reviewAll() {
