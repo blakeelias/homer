@@ -1,4 +1,5 @@
 Cards = new Mongo.Collection("cards");
+UserCards = new Mongo.Collection("userCards");
 Categories = new Mongo.Collection("categories");
 // Tags = new Mongo.Collection("tags");
 
@@ -6,6 +7,7 @@ if (Meteor.isClient) {
 
   Meteor.subscribe("cards");
   Meteor.subscribe("categories");
+  Meteor.subscribe("userCards");
   // Meteor.subscribe("tags");
 
   Session.set("learning", false);
@@ -32,11 +34,6 @@ if (Meteor.isClient) {
   });
 
   Template.body.helpers({
-    cards: function() {
-      return Cards.find({
-        userId: Meteor.user()._id
-      }).fetch();
-    },
     categories: function() {
       var importing = Session.get("import");
       var categories = Categories.find().fetch();
@@ -45,11 +42,7 @@ if (Meteor.isClient) {
       return categories;
     },
     cardsInCategory: function() {
-      var categoryId = getCategoryId(Session.get("categoryToBrowse"));
-      if (categoryId === null) {
-        return [];
-      }
-      return Cards.find({'category': categoryId}).fetch();
+      return cardsInCategory(Session.get("categoryToBrowse"));
     },
     nextCard: function() {
       var cards = [];
@@ -59,7 +52,7 @@ if (Meteor.isClient) {
         cards = cardsDueToday();
       }
       else {
-        cards = cardsDueTodayForCategory(categoryToReview, learning);
+        cards = cardsToShowForCategory(categoryToReview, learning);
         if (cards.length == 0) {
           Session.set("learning", false);
           Session.set("categoryToReview", null);
@@ -75,10 +68,13 @@ if (Meteor.isClient) {
       var index = 0;
       if (!learning) {
         index = Math.floor(Math.random() * cards.length);
+      } else {
+        cards.sort(function (a,b) {
+          return pop_score(b) - pop_score(a);
+        });
       }
-      cards.sort(function (a,b) {
-        return pop_score(b) - pop_score(a);
-      });
+      console.log(cards);
+      console.log(cards[index]);
       return [cards[index]];
     },
     progress: function() {
@@ -100,22 +96,18 @@ if (Meteor.isClient) {
 
   Template.category.helpers({
     cardsInCategory: function(category) {
-      var categoryId = getCategoryId(category);
-      if (categoryId === null) {
-        return [];
-      }
-      return Cards.find({'category': categoryId});
+      return cardsInCategory(category);
     }
   });
 
   Template.card.helpers({
     buttons: function() {
       return [{display1: "I got this wrong", days: "(show again)", rating: 0, display2: "0"},
-            {display1: "I barely know", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 1, new Date(), newEasinessFactor(this.easiness, 1))) + ' day(s)', rating: 1, display2: 1},
-            {display1: "I know a little", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 2, new Date(), newEasinessFactor(this.easiness, 2)))  + ' day(s)', rating: 2, display2: 2},
-            {display1: "I sort of know", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 3, new Date(), newEasinessFactor(this.easiness, 3))) + ' day(s)', rating: 3, display2: 3},
-            {display1: "I almost know", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 4, new Date(), newEasinessFactor(this.easiness, 4))) + ' day(s)', rating: 4, display2: 4},
-            {display1: "I know it", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.last_seen, 5, new Date(), newEasinessFactor(this.easiness, 5))) + ' day(s)', rating: 5, display2: 5}];
+            {display1: "I barely know", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.lastSeen, 1, new Date(), newEasinessFactor(this.easiness, 1))) + ' day(s)', rating: 1, display2: 1},
+            {display1: "I know a little", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.lastSeen, 2, new Date(), newEasinessFactor(this.easiness, 2)))  + ' day(s)', rating: 2, display2: 2},
+            {display1: "I sort of know", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.lastSeen, 3, new Date(), newEasinessFactor(this.easiness, 3))) + ' day(s)', rating: 3, display2: 3},
+            {display1: "I almost know", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.lastSeen, 4, new Date(), newEasinessFactor(this.easiness, 4))) + ' day(s)', rating: 4, display2: 4},
+            {display1: "I know it", days: 'next review in ' + Math.round(computeInterval(this.consecutiveCorrect, this.lastSeen, 5, new Date(), newEasinessFactor(this.easiness, 5))) + ' day(s)', rating: 5, display2: 5}];
     },
     isEditing: function() {
       return Session.get("isEditing");
@@ -156,16 +148,14 @@ if (Meteor.isClient) {
       }
       if ($(event.target).attr('class') == 'rank-number') {
         // TODO: store rating
-        var id = $('.card').attr('id')
-        var cardReference = {'_id': id};
-        var response = $(event.target).attr('rating');
-        yourAnswer = $('.card div').find(".yourAnswer").val();
-        answerCard(cardReference, response, yourAnswer);
+        var id = $('.card').attr('id');
+        var rating = $(event.target).attr('rating');
+        var yourAnswer = $('.card div').find(".yourAnswer").val();
+        answerCard({'_id': id}, rating, yourAnswer);
 
         $('.card div').find(".answer").hide()
         $('.card div').find(".card-footer").hide();
         $('.card div').find(".yourAnswer").attr("readonly", false);
-
       } else {
         $('.card').flip({
           direction: "rl",
@@ -234,7 +224,7 @@ if (Meteor.isClient) {
     'click button.review': function() {
       Session.set("learning", false);
       Session.set("categoryToReview", this.name);
-      updateProgressBar(0, cardsDueTodayForCategory(this.name, false).length)
+      updateProgressBar(0, cardsToShowForCategory(this.name, false).length)
     },
     'click button.browse': function() {
         currentCategory = Session.get("categoryToBrowse");
@@ -318,50 +308,52 @@ function reviewAll() {
   // Session.set("categoryToBrowse", null);
 }
 
-function updateCurrentCard(response) {
-  var selectedCardReference = Session.get('selectedCard');
-  answerCard(selectedCardReference, response);
-}
-
 function isCorrect(response) {
   return Number(response) > 0;
 }
 
-function answerCard(cardReference, response, yourAnswer) {
-    var card = Cards.findOne(cardReference);
-    if (card.userId == undefined) {
-      console.log('creating user card');
-      Meteor.call('createUserCard', card._id, response, yourAnswer);
-    } else {
-      updateCard(cardReference, response, yourAnswer);
-    }
-    if (isCorrect(response) || Session.get('learning')) {
-      incrementProgressBar();
-      //updateProgressBarReviewing(Session.get('numCardsTotal') - cardsDueToday().length);
-    }
+function answerCard(cardRef, rating, response) {
+  /**
+   * Answer a card.
+   */
+  var card = Cards.findOne(cardRef);
+  if (card === undefined) {
+    // user card
+    updateUserCard(cardRef, rating, response);
+  } else {
+    // master card
+    Meteor.call('createUserCard', card._id, rating, response);
+  }
+  if (isCorrect(response) || Session.get('learning')) {
+    incrementProgressBar();
+  }
 }
 
-function updateCard(cardReference, response, yourAnswer) {
+function updateUserCard(cardRef, rating, response) {
+  /**
+   * Update an user card.
+   */
   var nowDate = new Date();
-  var card = Cards.findOne(cardReference);
-  storeCardSnapshot(cardReference);
-  var easiness = newEasinessFactor(card.easiness, response);
-  var interval = computeInterval(card.consecutiveCorrect, card.last_seen, response, nowDate, easiness);
+  var card = UserCards.findOne(cardRef);
+  var easiness = newEasinessFactor(card.easiness, rating);
+  var interval = computeInterval(card.consecutiveCorrect, card.lastSeen, rating, nowDate, easiness);
   var nextReview = moment(nowDate);
   nextReview.add(interval, 'days');
-  Meteor.call("updateCard", cardReference, {
+  Meteor.call("storeCardSnapshot", cardRef);
+  Meteor.call("updateUserCard", cardRef, {
       $set: {
-          'last_seen' : nowDate,
-          'last_response': response,
-          'easiness': easiness,
-          'next_scheduled': nextReview._d,
-          'yourAnswer': yourAnswer,
-          'consecutiveCorrect': (response > 0) ? (card.consecutiveCorrect + 1) : 0
+        'lastSeen' : nowDate,
+        'nextScheduled': nextReview._d,
+        'easiness': easiness,
+        'consecutiveCorrect': (rating > 0) ? (card.consecutiveCorrect + 1) : 0
+      },
+      $push: {
+        'pastResponses': response,
       }
   });
 }
 
-function computeInterval(consecutiveCorrect, last_seen, response, nowDate, easiness) {
+function computeInterval(consecutiveCorrect, lastSeen, response, nowDate, easiness) {
   if (response == 0) {
     return 0;
   } else {
@@ -370,15 +362,10 @@ function computeInterval(consecutiveCorrect, last_seen, response, nowDate, easin
     } else if (consecutiveCorrect == 1) {
       return 6;
     } else {
-      var daysSinceLastSeen = (nowDate - last_seen) / (1000 * 60 * 60 * 24);
-      console.log('days since last seen: ' + daysSinceLastSeen);
+      var daysSinceLastSeen = (nowDate - lastSeen) / (1000 * 60 * 60 * 24);
       return easiness * daysSinceLastSeen;
     }
   }
-}
-
-function storeCardSnapshot(cardReference) {
-  Meteor.call("storeCardSnapshot", cardReference);
 }
 
 function newEasinessFactor(easinessFactor, quality) {
@@ -392,54 +379,60 @@ function newEasinessFactor(easinessFactor, quality) {
     return easinessFactor;
 }
 
+function cardsToShowForCategory(category, learning) {
+  if (learning) {
+    return cardsToLearnForCategory(category);
+  } else {
+    return cardsDueTodayForCategory(category);
+  }
+}
+
 function cardsInCategory(category) {
   var categoryId = getCategoryId(category);
   if (categoryId === null) {
     return [];
   }
-  return Cards.find({'category': categoryId});
+  return Cards.find({'category': categoryId}).fetch();
+}
+
+function cardsToLearnForCategory(category) {
+  var userCards = Cards.find({'userId': Meteor.user()._id});
+  var parentCardIds = new Set(userCards.map(function (card) {
+    return card.parentCard;
+  }));
+  var cards = cardsInCategory(category);
+  return cards.filter(function (card) {
+    return !parentCardIds.has(card._id);
+  });
 }
 
 function cardsDueToday() {
-  var cards = Cards.find({userId: Meteor.userId()}).fetch();
-  var dueCards = [];
-  for (card in cards) {
-    if (cards[card]["next_scheduled"] < new Date()) {
-      dueCards.push(populateCardFromParent(cards[card]));
-    }
-  }
+  var cards = UserCards.find({'userId': Meteor.userId()}).fetch();
+  var dueCards = cards.filter(function (card) {
+    return (card.nextScheduled < new Date());
+  });
   return dueCards;
 }
 
-function cardsDueTodayForCategory(category, learning) {
+function cardsDueTodayForCategory(category) {
   var categoryId = getCategoryId(category);
   if (categoryId === null) {
     return [];
   }
-  var cards = Cards.find({'category': categoryId}).fetch();
-  var dueCards = [];
-  if (learning) {
-    for (i in cards) {
-      if (Cards.find({
-        parentCard: cards[i]._id,
-        userId: Meteor.user()._id
-      }).count() == 0) {
-        dueCards.push(cards[i]);
-      }
-    }
-  } else {
-    var userCards = Cards.find({
-      category: categoryId,
-      userId: Meteor.user()._id
-    }).fetch();
-    for (i in userCards) {
-      var card = populateCardFromParent(userCards[i]);
-      if (card["next_scheduled"] != null && card["next_scheduled"] < new Date()) {
-        dueCards.push(card);
-      }
-    }
-  }
-  return dueCards;
+  var dueCards = cardsDueToday();
+  var parentCardIds = [];
+  var parentToUserMap = {};
+  dueCards.forEach(function (card) {
+    var parentCardId = card.parentCard;
+    parentCardIds.push(parentCardId);
+    parentToUserMap[parentCardId] = card;
+  });
+  return Cards.find({
+    '_id': {$in: parentCardIds},
+    'cateogry': categoryId
+  }).map(function (card) {
+    return parentToUserMap[card._id];
+  });
 }
 
 function populateCardFromParent(card) {
@@ -449,20 +442,6 @@ function populateCardFromParent(card) {
     card.answer = parentCard.answer;
   }
   return card;
-}
-
-function getUserCard(parentCardId) {
-  return Cards.findOne({
-    'parentCard': parentCardId,
-    'userId': Meteor.user()._id
-  });
-}
-
-function inputFocus(i){
-    if(i.value==i.defaultValue){ i.value=""; i.style.color="#000"; }
-}
-function inputBlur(i){
-    if(i.value==""){ i.value=i.defaultValue; i.style.color="#888"; }
 }
 
 function incrementProgressBar() {
@@ -490,31 +469,6 @@ function updateProgressBar(numSeen, numTotal) {
 if (Meteor.isServer) {
   Meteor.startup(function () {
       if (Cards.find().count() === 0) {
-        /* REMOVE?????
-        Cards.insert({"question": "What is 2 + 2?",
-                      "answer": "4",
-                      "easiness": 2.5,
-                      "next_scheduled": new Date(),
-                      "history": [],
-                      "categories": ["math", "lecture1"],
-                      "yourAnswers": []
-        });
-        Cards.insert({"question": "Who was the first US president?",
-                      "answer": "George Washington",
-                      "easiness": 2.5,
-                      "next_scheduled": new Date(),
-                      "history": [],
-                      "categories": ["history", "lecture1"],
-                      "yourAnswers": []
-        });
-        Cards.insert({"question": "In what year was the Declaration of Independence signed?",
-                      "answer": "1776",
-                      "easiness": 2.5,
-                      "next_scheduled": new Date(),
-                      "history": [],
-                      "categories": ["history", "lecture2"],
-                      "yourAnswers": []
-        });*/
         // TODO don't want this, better way to display done studying
         Cards.insert({"question": "Done studying!"});
       }
@@ -530,7 +484,7 @@ if (Meteor.isServer) {
 
 Meteor.methods({
   storeCardSnapshot: function (cardReference) {
-    var cardInfo = Cards.findOne(cardReference);
+    var cardInfo = UserCards.findOne(cardReference);
     delete cardInfo["history"]
     Cards.update(cardReference, {
         $push: {
@@ -538,21 +492,21 @@ Meteor.methods({
         }
     })
   },
-  updateCard: function (cardReference, updateObject) {
-    Cards.update(cardReference, updateObject);
+  updateUserCard: function (cardReference, updateObject) {
+    UserCards.update(cardReference, updateObject);
   },
-  createUserCard: function (cardReference, rating, yourAnswer) {
+  createUserCard: function (parentCardId, rating, response) {
     var newCardContent = {
-      userId: Meteor.user()._id,
-      parentCard: cardReference,
-      easiness: 2.5,
-      next_scheduled: new Date(),
-      history: [],
-      category: Cards.findOne(cardReference).category,
-      consecutiveCorrect: 0
+      'userId': Meteor.user()._id,
+      'parentCard': parentCardId,
+      'easiness': 2.5,
+      'nextScheduled': new Date(),
+      'pastResponses': [],
+      'history': [],
+      'consecutiveCorrect': 0
     };
-    Cards.insert(newCardContent, function(err, id) {
-      updateCard(id, rating, yourAnswer);
+    UserCards.insert(newCardContent, function(err, id) {
+      updateUserCard({'_id': id}, rating, response);
     });
   }
 });

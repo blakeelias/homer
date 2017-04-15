@@ -20,8 +20,6 @@ showInputForm = function() {
         Meteor.call('insertCard', importCategory.val(), {
                       'question': pair[0],
                       'answer': pair[1],
-                      'easiness': 2.5,
-                      'history':[]
                     });
       });
     }
@@ -72,8 +70,6 @@ showQuestionForm = function() {
       Meteor.call('insertCard', importCategory.val(), {
         'question': question,
         'answer': answer,
-        'easiness': 2.5,
-        'history': []
       });
     }
 
