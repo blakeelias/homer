@@ -45,6 +45,7 @@ if (Meteor.isClient) {
       return cardsInCategory(Session.get("categoryToBrowse"));
     },
     nextCard: function() {
+      console.log("starting nextCard");
       var cards = [];
       learning = Session.get("learning");
       categoryToReview = Session.get("categoryToReview");
@@ -156,6 +157,7 @@ if (Meteor.isClient) {
         $('.card div').find(".answer").hide()
         $('.card div').find(".card-footer").hide();
         $('.card div').find(".yourAnswer").attr("readonly", false);
+        console.log("ending click .card.clickable");
       } else {
         $('.card').flip({
           direction: "rl",
@@ -247,7 +249,7 @@ if (Meteor.isClient) {
   });
 
   Template.card.rendered = function() {
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    // MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
 
   Template.body.rendered = function() {
@@ -255,7 +257,7 @@ if (Meteor.isClient) {
       collapsible: true,
       heightStyle: "content"
     });
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    // MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
 
   Accounts.ui.config({
