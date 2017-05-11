@@ -27,7 +27,7 @@
   <button id="create-user">Add bulk questions</button>
   <div class="container-fluid">
 	  <div class="row">
-		  <div class="span6 col-md-4">
+		  <div class="span7 col-md-4">
 			  <div id="accordion">
 			  <h3>Card Categories</h3>
 				<div>
@@ -35,14 +35,12 @@
 				<br>
 				<br>
 				{{#each categories}}
-				  <div class="category">
 				  {{> categoryInAccordion}}
-				  </div>
 				{{/each}}
 				</div>
 			  </div>
 		  </div>
-		  <div class="span6 col-md-8">
+		  <div class="span5 col-md-8">
 			  <div class="cards">
           <div class="progress">
             <div class="bar {{progressBarClass}}" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%; min-width: 5em">
@@ -160,10 +158,14 @@
 </template>
 
 <template name="categoryInAccordion">
-    {{name}}
-    <button class="btn btn-xs btn-primary learn" style="float: right">Learn</button>
-    <button class="btn btn-xs btn-success review" style="float: right">Review</button>
-    <button class="btn btn-xs btn-default browse" style="float: right">Browse</button>
+    <div class="category">
+	    <div class="category-name span3">{{name}}</div>
+		<div class="btn-group">
+		    <button class="btn btn-xs btn-primary learn">Learn</button>
+		    <button class="btn btn-xs btn-success review">Review</button>
+		    <button class="btn btn-xs btn-default browse">Browse</button>
+	    </div>
+    </div>
 </template>
 
 <template name="category">

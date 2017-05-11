@@ -124,9 +124,15 @@ header .hide-completed {
 }
 
 .category {
-	font-size: 18px;
 	padding-top: 4px;
-	padding-bottom: 4px;
+	padding-bottom: 20px;
+	clear: both;
+	
+/*	font-size: 14px; */
+}
+
+.category-name {
+	margin-right: 20px;
 }
 
 table {
