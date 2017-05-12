@@ -149,22 +149,10 @@
   					{{/each}}
   				</div>
           <div class="voting">
-            {{upvotes}} <input class="vote" id="voteQuestionUp" type="image" src="/icons/upvoted-true.png"> 
-            <!--
-            {{#if cardOpinion 1}}
-              <input class="vote" id="unvoteQuestionUp" type="image" src="/icons/upvoted-true.png">
-            {{else}}
-              <input class="vote" id="voteQuestionUp" type="image" src="/icons/upvoted-false.png">
-            {{/if}}
-            -->
-             {{downvotes}} <input class="vote" id="voteQuestionDown" type="image" src="/icons/downvoted-true.png"> 
-            <!--
-            {{#if cardOpinion -1}}
-              <input class="vote" id="unvoteQuestionDown" type="image" src="/icons/downvoted-true.png">
-            {{else}}
-              <input class="vote" id="voteQuestionDown" type="image" src="/icons/downvoted-false.png">
-            {{/if}}
-            -->
+            {{upvotes}}
+            <input class="vote" id="{{#if cardOpinion 1}}unvoteQuestionUp{{else}}voteQuestionUp{{/if}}" type="image" src="{{#if cardOpinion 1}}/icons/upvoted-true.png{{else}}/icons/upvoted-false.png{{/if}}" data-original-title="Upvote if you think the question is important.">
+             {{downvotes}}
+            <input class="vote" id="{{#if cardOpinion -1}}unvoteQuestionDown{{else}}voteQuestionDown{{/if}}" type="image" src="{{#if cardOpinion -1}}/icons/downvoted-true.png{{else}}/icons/downvoted-false.png{{/if}}" data-original-title="Downvote if you think the question is unimportant.">
           </div>
   			</div>
   	    {{/if}}
