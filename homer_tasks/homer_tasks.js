@@ -125,6 +125,22 @@ if (Meteor.isClient) {
     },
     done: function() {
       return Session.get('numCardsSeen') == Session.get('numCardsTotal');
+    },
+    upvotes: function() {
+      var upvotes = (this.upvotes === undefined) ? 0 : this.upvotes;
+      return upvotes;
+    },
+    downvotes: function() {
+      var downvotes = (this.downvotes === undefined) ? 0 : this.downvotes;
+      return downvotes;
+    },
+    cardOpinion: function (guess) {
+      var userCard = getUserCard(this._id);
+      if (!userCard) {
+        return (guess == 0);
+      } else {
+        return (guess == userCard.cardOpinion);
+      }
     }
   });
 
@@ -164,6 +180,7 @@ if (Meteor.isClient) {
 
         $('.card div').find(".answer").hide()
         $('.card div').find(".card-footer").hide();
+        $('.card div').find(".voting").hide();
         $('.card div').find(".yourAnswer").attr("readonly", false);
 
       } else {
@@ -172,15 +189,16 @@ if (Meteor.isClient) {
           speed: 150,
           color: "#00372B",
           onEnd: function() {
-               $('.card div').find(".answer").show()
-               $('.card div').find(".card-footer").show();
-               $('.card div').find(".yourAnswer").attr("readonly", "readonly");
+              $('.card div').find(".answer").show()
+              $('.card div').find(".card-footer").show();
+              $('.card div').find(".voting").show();
+              $('.card div').find(".yourAnswer").attr("readonly", "readonly");
 
-               // Initialize card events
-               $(".card-footer span").tooltip({
-                    animation: false,
-                    placement: "bottom"
-                });
+              // Initialize card events
+              $(".card-footer span").tooltip({
+                  animation: false,
+                  placement: "bottom"
+              });
            }
         });
       }
@@ -206,22 +224,49 @@ if (Meteor.isClient) {
       Session.set("isEditing", false);
       $('.edit').show();
     },
-    'click button.vote': function(event, template) {
-      var change = {};
-      if (event.target.id === "voteQuestionUp") {
-        change = {'upvotes': 1};
-      } else if (event.target.id === "voteQuestionDown") {
-        change = {'downvotes': 1};
-      }
+    'click input.vote': function(event, template) {
       var cardReference = {'_id': $('.card').attr('id')};
-      var card = Cards.findOne(cardReference);
-      if (card.parentCard) {
+      // we don't know whether the card is a parent card or a user card
+      var parentCard = Cards.findOne(cardReference);
+      var userCard = parentCard;
+      if (parentCard.parentCard) {
         // is a user card
-        card = Cards.findOne({'_id': card.parentCard});
+        parentCard = Cards.findOne({'_id': parentCard.parentCard});
+      } else {
+        // is a parent card
+        userCard = getUserCard(parentCard._id);
       }
-      Meteor.call("updateCard", card, {
+      console.log(parentCard);
+      var change = {};
+      var cardOpinion;
+      if (event.target.id === "voteQuestionUp") {
+        if (userCard && userCard.cardOpinion == -1) {
+          change = {'upvotes': 1, 'downvotes': -1};
+        } else {
+          change = {'upvotes': 1};
+        }
+        cardOpinion = 1;
+      } else if (event.target.id === "unvoteQuestionUp") {
+        change = {'upvotes': -1};
+        cardOpinion = 0;
+      }
+      else if (event.target.id === "voteQuestionDown") {
+        if (userCard && userCard.cardOpinion == 1) {
+          change = {'downvotes': 1, 'upvotes': -1};
+        } else {
+          change = {'downvotes': 1};
+        }
+        cardOpinion = -1;
+      } else if (event.target.id === "unvoteQuestionDown") {
+        change = {'downvotes': -1};
+        cardOpinion = 0;
+      }
+      Meteor.call("updateCard", parentCard, {
         $inc: change
       });
+      Meteor.call("updateCard", userCard, {
+        $set: {'cardOpinion': cardOpinion}
+      })
     },
   });
 
@@ -549,7 +594,8 @@ Meteor.methods({
       next_scheduled: new Date(),
       history: [],
       category: Cards.findOne(cardReference).category,
-      consecutiveCorrect: 0
+      consecutiveCorrect: 0,
+      cardOpinion: 0, // 1 = upvoted, 0 = neutral, -1 = downvoted
     };
     Cards.insert(newCardContent, function(err, id) {
       updateCard(id, rating, yourAnswer);
