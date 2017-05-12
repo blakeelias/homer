@@ -77,7 +77,11 @@ if (Meteor.isClient) {
         index = Math.floor(Math.random() * cards.length);
       }
       cards.sort(function (a,b) {
-        return popularity_score(b) - popularity_score(a);
+        if (!learning) {
+          return userCardReviewPriority(b._id) - userCardReviewPriority(a._id);
+        } else {
+          return popularity_score(b) - popularity_score(a);
+        }
       });
       return [cards[index]];
     },
@@ -298,6 +302,16 @@ function popularity_score(card) {
   return (upvotes + 5) / (upvotes + downvotes + 10);
 }
 
+function userCardReviewPriority (userCardReference) {
+  var userCard = Cards.findOne(userCardReference);
+  var parentCard = Cards.findOne(userCard.parent);
+  
+  var importance = popularity_score(parentCard);
+  var probability = recallProbability(userCardReference);
+  
+  return importance / probability;
+}
+
 function getCategoryId(categoryName) {
   /**
     Get ID of the category with specified name, or null if category does not exist.
@@ -508,13 +522,4 @@ Meteor.methods({
       updateCard(id, rating, yourAnswer);
     });
   },
-  userCardReviewPriority: function(userCardReference) {
-    var userCard = Cards.findOne(userCard);
-    var parentCard = Cards.findOne(userCard.parent);
-    
-    var importance = popularity_score(parentCard);
-    var probability = recallProbability(userCardReference);
-    
-    return importance / probability;
-  }
 });
