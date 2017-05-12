@@ -51,7 +51,13 @@ storeCardSnapshot = function storeCardSnapshot(cardReference) {
 
 intervalsSinceLastSeen = function(cardReference) {
   var card = Cards.findOne(cardReference);
+	assert(isUserCard(card));
+	
   var interval = card.next_scheduled - card.last_seen;
   var timeSinceLastSeen = moment() - card.last_seen;
   return timeSinceLastSeen / interval;
+}
+
+recallProbability = function(cardReference) {
+	return Math.pow(0.9, intervalsSinceLastSeen(cardReference));
 }

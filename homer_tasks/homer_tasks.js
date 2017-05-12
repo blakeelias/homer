@@ -77,7 +77,7 @@ if (Meteor.isClient) {
         index = Math.floor(Math.random() * cards.length);
       }
       cards.sort(function (a,b) {
-        return pop_score(b) - pop_score(a);
+        return popularity_score(b) - popularity_score(a);
       });
       return [cards[index]];
     },
@@ -288,7 +288,7 @@ if (Meteor.isClient) {
 
 }
 
-function pop_score(card) {
+function popularity_score(card) {
   /**
     Calculate the popularity score.
    */
@@ -407,6 +407,10 @@ function getUserCard(parentCardId) {
   });
 }
 
+isUserCard = function(card) {
+  return card.userId != undefined;
+}
+
 function inputFocus(i){
     if(i.value==i.defaultValue){ i.value=""; i.style.color="#000"; }
 }
@@ -503,5 +507,14 @@ Meteor.methods({
     Cards.insert(newCardContent, function(err, id) {
       updateCard(id, rating, yourAnswer);
     });
+  },
+  userCardReviewPriority: function(userCardReference) {
+    var userCard = Cards.findOne(userCard);
+    var parentCard = Cards.findOne(userCard.parent);
+    
+    var importance = popularity_score(parentCard);
+    var probability = recallProbability(userCardReference);
+    
+    return importance / probability;
   }
 });
