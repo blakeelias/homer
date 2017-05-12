@@ -127,11 +127,13 @@ if (Meteor.isClient) {
       return Session.get('numCardsSeen') == Session.get('numCardsTotal');
     },
     upvotes: function() {
-      var upvotes = (this.upvotes === undefined) ? 0 : this.upvotes;
+      var card = getParentCard(this);
+      var upvotes = (card.upvotes === undefined) ? 0 : card.upvotes;
       return upvotes;
     },
     downvotes: function() {
-      var downvotes = (this.downvotes === undefined) ? 0 : this.downvotes;
+      var card = getParentCard(this);
+      var downvotes = (card.downvotes === undefined) ? 0 : card.downvotes;
       return downvotes;
     },
     cardOpinion: function (guess) {
@@ -227,15 +229,8 @@ if (Meteor.isClient) {
     'click input.vote': function(event, template) {
       var cardReference = {'_id': $('.card').attr('id')};
       // we don't know whether the card is a parent card or a user card
-      var parentCard = Cards.findOne(cardReference);
-      var userCard = parentCard;
-      if (parentCard.parentCard) {
-        // is a user card
-        parentCard = Cards.findOne({'_id': parentCard.parentCard});
-      } else {
-        // is a parent card
-        userCard = getUserCard(parentCard._id);
-      }
+      var parentCard = getParentCard(Cards.findOne(cardReference));
+      var userCard = getUserCard(parentCard._id);
       console.log(parentCard);
       var change = {};
       var cardOpinion;
@@ -494,6 +489,15 @@ function populateCardFromParent(card) {
     card.answer = parentCard.answer;
   }
   return card;
+}
+
+function getParentCard(card) {
+  // get parent card if the card is a user card; return itself if parent
+  if (card.parentCard) {
+    return Cards.findOne({'_id': card.parentCard});
+  } else {
+    return card;
+  }
 }
 
 function getUserCard(parentCardId) {
