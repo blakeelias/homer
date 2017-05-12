@@ -34,7 +34,6 @@ computeInterval = function computeInterval(consecutiveCorrect, last_seen, respon
   }
 }
 
-
 newEasinessFactor = function newEasinessFactor(easinessFactor, quality) {
     var easinessFactor = easinessFactor - 0.8 + 0.28*quality - 0.02*quality*quality;
     if (easinessFactor < 1.3) {
@@ -48,4 +47,11 @@ newEasinessFactor = function newEasinessFactor(easinessFactor, quality) {
 
 storeCardSnapshot = function storeCardSnapshot(cardReference) {
   Meteor.call("storeCardSnapshot", cardReference);
+}
+
+intervalsSinceLastSeen = function(cardReference) {
+  var card = Cards.findOne(cardReference);
+  var interval = card.next_scheduled - card.last_seen;
+  var timeSinceLastSeen = moment() - card.last_seen;
+  return timeSinceLastSeen / interval;
 }

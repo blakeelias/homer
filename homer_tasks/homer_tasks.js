@@ -125,7 +125,7 @@ if (Meteor.isClient) {
     },
     done: function() {
       return Session.get('numCardsSeen') == Session.get('numCardsTotal');
-    }
+    },
   });
 
   Template.button.helpers({
