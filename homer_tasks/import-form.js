@@ -21,7 +21,9 @@ showInputForm = function() {
                       'question': pair[0],
                       'answer': pair[1],
                       'easiness': 2.5,
-                      'history':[]
+                      'history':[],
+                      'upvotes': 0,
+                      'downvotes': 0,
                     });
       });
     }
