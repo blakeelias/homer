@@ -75,7 +75,9 @@ showQuestionForm = function() {
         'question': question,
         'answer': answer,
         'easiness': 2.5,
-        'history': []
+        'history': [],
+        'upvotes': 0,
+        'downvotes': 0,
       });
     }
 
