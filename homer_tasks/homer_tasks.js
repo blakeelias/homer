@@ -19,10 +19,6 @@ if (Meteor.isClient) {
     return "";
   };
 
-  Template.body.selected_card = function () {
-    return Cards.findOne(Session.get("selectedCard"));
-  };
-
   Template.body.events({
     'click input.import' : function () {
       // template data, if any, is available in 'this'
@@ -73,8 +69,12 @@ if (Meteor.isClient) {
         // return [];
       }
       var index = 0;
-      if (!learning) {
-        index = Math.floor(Math.random() * cards.length);
+      if (learning) {
+        cards = cards.filter(function (card) {
+          // no user cards in learning mode!
+          // hack to remove the empty cards
+          return (card.parentCard === undefined);
+        })
       }
       cards.sort(function (a,b) {
         if (!learning) {
@@ -83,7 +83,14 @@ if (Meteor.isClient) {
           return popularity_score(b) - popularity_score(a);
         }
       });
-      return [cards[index]];
+      // hack so that opinion stays on a card in learning mode
+      var ret = cards[index];
+      if (Session.get("selectedCard") && ret._id !== Session.get("selectedCard")._id) {
+        Session.set("cardOpinion", 0);
+        console.log("moving to diff card");
+      }
+      Session.set("selectedCard", ret);
+      return [ret];
     },
     progress: function() {
       return Session.get('numCardsSeen') / Session.get('numCardsTotal') * 100;
@@ -130,6 +137,19 @@ if (Meteor.isClient) {
     done: function() {
       return Session.get('numCardsSeen') == Session.get('numCardsTotal');
     },
+    upvotes: function() {
+      var card = getParentCard(this);
+      var upvotes = (card.upvotes === undefined) ? 0 : card.upvotes;
+      return upvotes;
+    },
+    downvotes: function() {
+      var card = getParentCard(this);
+      var downvotes = (card.downvotes === undefined) ? 0 : card.downvotes;
+      return downvotes;
+    },
+    cardOpinion: function (guess) {
+      return (guess == Session.get("cardOpinion"));
+    }
   });
 
   Template.button.helpers({
@@ -168,6 +188,7 @@ if (Meteor.isClient) {
 
         $('.card div').find(".answer").hide()
         $('.card div').find(".card-footer").hide();
+        $('.card div').find(".voting").hide();
         $('.card div').find(".yourAnswer").attr("readonly", false);
 
       } else {
@@ -176,15 +197,20 @@ if (Meteor.isClient) {
           speed: 150,
           color: "#00372B",
           onEnd: function() {
-               $('.card div').find(".answer").show()
-               $('.card div').find(".card-footer").show();
-               $('.card div').find(".yourAnswer").attr("readonly", "readonly");
+              $('.card div').find(".answer").show()
+              $('.card div').find(".card-footer").show();
+              $('.card div').find(".voting").show();
+              $('.card div').find(".yourAnswer").attr("readonly", "readonly");
 
-               // Initialize card events
-               $(".card-footer span").tooltip({
-                    animation: false,
-                    placement: "bottom"
-                });
+              // Initialize card events
+              $(".card-footer span").tooltip({
+                  animation: false,
+                  placement: "bottom"
+              });
+              $(".vote").tooltip({
+                  animation: false,
+                  placement: "top"
+              });
            }
         });
       }
@@ -210,21 +236,45 @@ if (Meteor.isClient) {
       Session.set("isEditing", false);
       $('.edit').show();
     },
-    'click button.vote': function(event, template) {
+    'click input.vote': function(event, template) {
+      console.log("input.vote clicked");
+      var cardReference = {'_id': $('.card').attr('id')};
+      // we don't know whether the card is a parent card or a user card
+      var parentCard = getParentCard(Cards.findOne(cardReference));
+      var userCard = getUserCard(parentCard._id);
       var change = {};
       if (event.target.id === "voteQuestionUp") {
-        change = {'upvotes': 1};
-      } else if (event.target.id === "voteQuestionDown") {
-        change = {'downvotes': 1};
+        if (Session.get("cardOpinion") == -1) {
+          change = {'upvotes': 1, 'downvotes': -1};
+        } else {
+          change = {'upvotes': 1};
+        }
+        Session.set("cardOpinion", 1);
+      } else if (event.target.id === "unvoteQuestionUp") {
+        change = {'upvotes': -1};
+        Session.set("cardOpinion", 0);
       }
-      var cardReference = {'_id': $('.card').attr('id')};
-      var card = Cards.findOne(cardReference);
-      if (card.parentCard) {
-        // is a user card
-        card = Cards.findOne({'_id': card.parentCard});
+      else if (event.target.id === "voteQuestionDown") {
+        if (Session.get("cardOpinion") == 1) {
+          change = {'downvotes': 1, 'upvotes': -1};
+        } else {
+          change = {'downvotes': 1};
+        }
+        Session.set("cardOpinion", -1);
+      } else if (event.target.id === "unvoteQuestionDown") {
+        change = {'downvotes': -1};
+        Session.set("cardOpinion", 0);
       }
-      Meteor.call("updateCard", card, {
+      Meteor.call("updateCard", parentCard, {
         $inc: change
+      });
+      Meteor.call("updateCard", userCard, {
+        $set: {'cardOpinion': Session.get("cardOpinion")}
+      })
+      $('.tooltip').remove();
+      $(".vote").tooltip({
+        animation: false,
+        placement: "top"
       });
     },
   });
@@ -303,8 +353,13 @@ function popularity_score(card) {
 }
 
 function userCardReviewPriority (userCardReference) {
+  console.log("userCardReviewPriority(" + userCardReference + ")")
   var userCard = Cards.findOne(userCardReference);
-  var parentCard = Cards.findOne(userCard.parent);
+  console.log("userCard == ");
+  console.log(userCard);
+  console.log("userCard.parent == " + userCard.parentCard);
+  var parentCard = Cards.findOne(userCard.parentCard);
+  console.log("parentCard == " + parentCard);
   
   var importance = popularity_score(parentCard);
   var probability = recallProbability(userCardReference);
@@ -332,11 +387,6 @@ function reviewAll() {
   // Session.set("categoryToBrowse", null);
 }
 
-function updateCurrentCard(response) {
-  var selectedCardReference = Session.get('selectedCard');
-  answerCard(selectedCardReference, response);
-}
-
 function isCorrect(response) {
   return Number(response) > 0;
 }
@@ -345,7 +395,7 @@ function answerCard(cardReference, response, yourAnswer) {
     var card = Cards.findOne(cardReference);
     if (card.userId == undefined) {
       console.log('creating user card');
-      Meteor.call('createUserCard', card._id, response, yourAnswer);
+      Meteor.call('createUserCard', card._id, response, yourAnswer, Session.get("cardOpinion"));
     } else {
       updateCard(cardReference, response, yourAnswer);
     }
@@ -412,6 +462,15 @@ function populateCardFromParent(card) {
     card.answer = parentCard.answer;
   }
   return card;
+}
+
+function getParentCard(card) {
+  // get parent card if the card is a user card; return itself if parent
+  if (card.parentCard) {
+    return Cards.findOne({'_id': card.parentCard});
+  } else {
+    return card;
+  }
 }
 
 function getUserCard(parentCardId) {
@@ -508,7 +567,7 @@ Meteor.methods({
   updateCard: function (cardReference, updateObject) {
     Cards.update(cardReference, updateObject);
   },
-  createUserCard: function (cardReference, rating, yourAnswer) {
+  createUserCard: function (cardReference, rating, yourAnswer, opinion) {
     var newCardContent = {
       userId: Meteor.user()._id,
       parentCard: cardReference,
@@ -516,7 +575,8 @@ Meteor.methods({
       next_scheduled: new Date(),
       history: [],
       category: Cards.findOne(cardReference).category,
-      consecutiveCorrect: 0
+      consecutiveCorrect: 0,
+      cardOpinion: opinion, // 1 = upvoted, 0 = neutral, -1 = downvoted
     };
     Cards.insert(newCardContent, function(err, id) {
       updateCard(id, rating, yourAnswer);

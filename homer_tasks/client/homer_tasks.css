@@ -245,3 +245,9 @@ th, td {
     .card .card-footer  span.rank-number:nth-of-type(6) {
         background-color: #00FF00;
     }
+
+.voting {
+    padding-top: 15px;
+    margin-bottom: 5px;
+    display: none;
+}
