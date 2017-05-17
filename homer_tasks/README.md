@@ -4,3 +4,10 @@ Instructions for installing a local instance of Homer (for development only, not
 2. cd homer_tasks/
 3. meteor .
 4. In a browser, open localhost:3000
+
+To deploy:
+
+1. In a terminal, run:
+
+  cd .deploy
+  mup deploy
