@@ -27,3 +27,5 @@ standard-minifier-css
 standard-minifier-js
 shell-server
 underscore
+devian:analytics
+kadira:flow-router
