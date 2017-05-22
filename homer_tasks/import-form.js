@@ -24,6 +24,7 @@ showInputForm = function() {
                       'history':[],
                       'upvotes': 0,
                       'downvotes': 0,
+                      'tags': [],
                     });
       });
     }
@@ -78,6 +79,7 @@ showQuestionForm = function() {
         'history': [],
         'upvotes': 0,
         'downvotes': 0,
+        'tags': [],
       });
     }
 
