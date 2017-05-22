@@ -45,7 +45,11 @@ if (Meteor.isClient) {
       if (categoryId === null) {
         return [];
       }
-      return Cards.find({'category': categoryId}).fetch();
+      return Cards.find({'category': categoryId}).fetch().filter(function (card) {
+        // no user cards in learning mode!
+        // hack to remove the empty cards
+        return (card.parentCard === undefined);
+      });
     },
     nextCard: function() {
       var cards = [];
@@ -74,7 +78,7 @@ if (Meteor.isClient) {
           // no user cards in learning mode!
           // hack to remove the empty cards
           return (card.parentCard === undefined);
-        })
+        });
       }
       cards.sort(function (a,b) {
         if (!learning) {
@@ -85,7 +89,7 @@ if (Meteor.isClient) {
       });
       // hack so that opinion stays on a card in learning mode
       var ret = cards[index];
-      if (Session.get("selectedCard") && ret._id !== Session.get("selectedCard")._id) {
+      if (ret && Session.get("selectedCard") && ret._id !== Session.get("selectedCard")._id) {
         Session.set("cardOpinion", 0);
         console.log("moving to diff card");
       }
@@ -93,10 +97,13 @@ if (Meteor.isClient) {
       // update tags
       $('#card-tags-container').tagsinput('removeAll');
       if (ret) {
+        $('#card-tags-outer-container').show();
         getParentCard(ret).tags.forEach(function (tag) {
           var tagName = Tags.findOne({_id: tag}).name;
           $('#card-tags-container').tagsinput('add', tagName);
         });
+      } else {
+        $('#card-tags-outer-container').hide();
       }
       return [ret];
     },
@@ -346,6 +353,7 @@ if (Meteor.isClient) {
       }
     });
     $(function () {
+      $('#card-tags-outer-container').hide();
       $('#card-tags-container').on('itemAdded', function (event) {
         Meteor.call("addTag", Session.get("selectedCard"), event.item);
       });
@@ -615,6 +623,9 @@ Meteor.methods({
     });
   },
   addTag: function (card, name) {
+    if (!card) {
+      return;
+    }
     var tagId = findTag(card.category, name);
     if (!tagId) {
       Tags.insert({
@@ -636,6 +647,9 @@ Meteor.methods({
     }
   },
   removeTag: function (card, name) {
+    if (!card) {
+      return;
+    }
     var tagId = findTag(card.category, name);
     if (tagId) {
       Cards.update({_id: getParentCard(card)._id}, {
