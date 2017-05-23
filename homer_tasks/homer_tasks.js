@@ -1,12 +1,12 @@
 Cards = new Mongo.Collection("cards");
 Categories = new Mongo.Collection("categories");
-// Tags = new Mongo.Collection("tags");
+Tags = new Mongo.Collection("cardTags");
 
 if (Meteor.isClient) {
 
   Meteor.subscribe("cards");
   Meteor.subscribe("categories");
-  // Meteor.subscribe("tags");
+  Meteor.subscribe("cardTags");
 
   Session.set("learning", false);
   Session.set("categoryToReview", null);
@@ -45,7 +45,11 @@ if (Meteor.isClient) {
       if (categoryId === null) {
         return [];
       }
-      return Cards.find({'category': categoryId}).fetch();
+      return Cards.find({'category': categoryId}).fetch().filter(function (card) {
+        // no user cards in learning mode!
+        // hack to remove the empty cards
+        return (card.parentCard === undefined);
+      });
     },
     nextCard: function() {
       var cards = [];
@@ -74,7 +78,7 @@ if (Meteor.isClient) {
           // no user cards in learning mode!
           // hack to remove the empty cards
           return (card.parentCard === undefined);
-        })
+        });
       }
       cards.sort(function (a,b) {
         if (!learning) {
@@ -85,11 +89,22 @@ if (Meteor.isClient) {
       });
       // hack so that opinion stays on a card in learning mode
       var ret = cards[index];
-      if (Session.get("selectedCard") && ret._id !== Session.get("selectedCard")._id) {
+      if (ret && Session.get("selectedCard") && ret._id !== Session.get("selectedCard")._id) {
         Session.set("cardOpinion", 0);
         console.log("moving to diff card");
       }
       Session.set("selectedCard", ret);
+      // update tags
+      $('#card-tags-container').tagsinput('removeAll');
+      if (ret) {
+        $('#card-tags-outer-container').show();
+        getParentCard(ret).tags.forEach(function (tag) {
+          var tagName = Tags.findOne({_id: tag}).name;
+          $('#card-tags-container').tagsinput('add', tagName);
+        });
+      } else {
+        $('#card-tags-outer-container').hide();
+      }
       return [ret];
     },
     progress: function() {
@@ -237,7 +252,6 @@ if (Meteor.isClient) {
       $('.edit').show();
     },
     'click input.vote': function(event, template) {
-      console.log("input.vote clicked");
       var cardReference = {'_id': $('.card').attr('id')};
       // we don't know whether the card is a parent card or a user card
       var parentCard = getParentCard(Cards.findOne(cardReference));
@@ -311,7 +325,7 @@ if (Meteor.isClient) {
   });
 
   Template.card.rendered = function() {
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    // MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
 
   Template.body.rendered = function() {
@@ -319,7 +333,7 @@ if (Meteor.isClient) {
       collapsible: true,
       heightStyle: "content"
     });
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    // MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
 
   Accounts.ui.config({
@@ -337,6 +351,15 @@ if (Meteor.isClient) {
           reviewAll();
         }
       }
+    });
+    $(function () {
+      $('#card-tags-outer-container').hide();
+      $('#card-tags-container').on('itemAdded', function (event) {
+        Meteor.call("addTag", Session.get("selectedCard"), event.item);
+      });
+      $('#card-tags-container').on('itemRemoved', function (event) {
+        Meteor.call("removeTag", Session.get("selectedCard"), event.item);
+      });
     });
   });
 
@@ -480,8 +503,22 @@ function getUserCard(parentCardId) {
   });
 }
 
-isUserCard = function(card) {
+function isUserCard (card) {
   return card.userId != undefined;
+}
+
+// return tag ID with corresponding properties; null if not found
+function findTag(categoryId, name) {
+  var tagRef = {
+    'category': categoryId,
+    'name': name
+  };
+  var tag = Tags.findOne(tagRef);
+  if (tag) {
+    return tag._id;
+  } else {
+    return null;
+  }
 }
 
 function inputFocus(i){
@@ -552,6 +589,9 @@ if (Meteor.isServer) {
   Meteor.publish("categories", function () {
     return Categories.find();
   });
+  Meteor.publish("cardTags", function () {
+    return Tags.find();
+  });
 }
 
 Meteor.methods({
@@ -581,5 +621,42 @@ Meteor.methods({
     Cards.insert(newCardContent, function(err, id) {
       updateCard(id, rating, yourAnswer);
     });
+  },
+  addTag: function (card, name) {
+    if (!card) {
+      return;
+    }
+    var tagId = findTag(card.category, name);
+    if (!tagId) {
+      Tags.insert({
+        category: card.category,
+        name: name
+      }, function (error, id) {
+        Cards.update({_id: getParentCard(card)._id}, {
+          $addToSet: {
+            tags: id
+          }
+        });
+      });
+    } else {
+      Cards.update({_id: getParentCard(card)._id}, {
+        $addToSet: {
+          tags: tagId
+        }
+      });
+    }
+  },
+  removeTag: function (card, name) {
+    if (!card) {
+      return;
+    }
+    var tagId = findTag(card.category, name);
+    if (tagId) {
+      Cards.update({_id: getParentCard(card)._id}, {
+        $pull: {
+          tags: tagId
+        }
+      });
+    }
   },
 });
